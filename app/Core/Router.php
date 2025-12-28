@@ -165,5 +165,8 @@ class Router
         } else {
             echo '404 Not Found';
         }
+        
+        // Log 404 error
+        error_log('404 Not Found: ' . $_SERVER['REQUEST_URI']);
     }
 }

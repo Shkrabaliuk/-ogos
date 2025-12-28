@@ -27,4 +27,7 @@ if (!$isInstalled) {
     // Якщо встановлено - показуємо звичайні сторінки
     $router->get('/', [HomeController::class, 'index']);
     $router->get('/about', [HomeController::class, 'about']);
+    
+    // Додаткові маршрути
+    $router->get('/contact', [HomeController::class, 'contact']);
 }

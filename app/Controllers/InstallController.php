@@ -100,12 +100,7 @@ class InstallController extends Controller
         $envFile = BASE_PATH . '/.env';
         
         if (!file_exists($envFile)) {
-            $exampleFile = BASE_PATH . '/.env.example';
-            if (file_exists($exampleFile)) {
-                copy($exampleFile, $envFile);
-            } else {
-                file_put_contents($envFile, '');
-            }
+            file_put_contents($envFile, '');
         }
 
         $envContent = file_get_contents($envFile);

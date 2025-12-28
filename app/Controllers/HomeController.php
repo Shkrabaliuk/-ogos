@@ -27,4 +27,14 @@ class HomeController extends Controller
             'siteName' => getenv('APP_NAME') ?: 'CMS4Blog',
         ]);
     }
+
+    public function contact(): void
+    {
+        $this->view->setLayout('main');
+        
+        echo $this->render('home/contact', [
+            'title' => 'Контакти',
+            'siteName' => getenv('APP_NAME') ?: 'CMS4Blog',
+        ]);
+    }
 }
