@@ -51,9 +51,8 @@ function get_posts($search = '', $order = 'DESC', $page = 1) {
         $params = [$searchTerm, $searchTerm, $searchTerm];
     }
     
-    $sql .= " ORDER BY created_at $order LIMIT ? OFFSET ?";
-    $params[] = $per_page;
-    $params[] = $offset;
+    // ВАЖЛИВО: LIMIT і OFFSET вставляємо прямо в запит
+    $sql .= " ORDER BY created_at $order LIMIT $per_page OFFSET $offset";
     
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
@@ -91,7 +90,7 @@ function estimate_reading_time($text) {
     return $minutes > 0 ? $minutes : 1;
 }
 
-function excerpt($text, $limit = 300) {
+function excerpt($text, $limit = 250) {
     $text = strip_tags($text);
     if (mb_strlen($text) <= $limit) return $text;
     $text = mb_substr($text, 0, $limit);

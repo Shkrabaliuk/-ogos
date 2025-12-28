@@ -1,14 +1,24 @@
 # UTF-8
 AddDefaultCharset UTF-8
 
-# Захист конфігу
-<Files "config.php">
+# Захист config.php
+<IfModule mod_authz_core.c>
+  <Files "config.php">
+    Require all denied
+  </Files>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+  <Files "config.php">
     Order Allow,Deny
     Deny from all
-</Files>
+  </Files>
+</IfModule>
 
-# Захист від перегляду директорій
-Options -Indexes
+# Заборона перегляду директорій
+<IfModule mod_autoindex.c>
+  Options -Indexes
+</IfModule>
 
 # 404
 ErrorDocument 404 /404.php
