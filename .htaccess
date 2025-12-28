@@ -27,6 +27,9 @@ RedirectMatch 403 ^/app/
 RedirectMatch 403 ^/config/
 RedirectMatch 403 ^/database/
 
+# Allow access to public assets
+RedirectMatch 200 ^/public/
+
 # Security headers
 <IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"

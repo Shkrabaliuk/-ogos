@@ -6,16 +6,12 @@ namespace App\Core;
 
 abstract class Controller
 {
-    protected View $view;
-
-    public function __construct()
-    {
-        $this->view = new View();
-    }
-
     protected function render(string $template, array $data = []): string
     {
-        return $this->view->render($template, $data);
+        extract($data);
+        ob_start();
+        include TEMPLATES_PATH . '/' . $template . '.php';
+        return ob_get_clean();
     }
 
     protected function json(array $data, int $statusCode = 200): never
@@ -46,11 +42,6 @@ abstract class Controller
     protected function inputPost(string $key, mixed $default = null): mixed
     {
         return $_POST[$key] ?? $default;
-    }
-
-    protected function allInput(): array
-    {
-        return array_merge($_GET, $_POST);
     }
 
     protected function method(): string

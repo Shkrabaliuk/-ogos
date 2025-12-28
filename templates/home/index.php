@@ -1,7 +1,3 @@
-<?php $this->startSection('styles'); ?>
-<link rel="stylesheet" href="/assets/css/home.css">
-<?php $this->endSection(); ?>
-
 <div class="hero">
     <h2>Ласкаво просимо до <?= $siteName ?></h2>
     <p>Легка, швидка та захищена CMS для блогінгу на PHP 8.x + MySQL</p>

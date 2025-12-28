@@ -1,7 +1,3 @@
-<?php $this->startSection('styles'); ?>
-<link rel="stylesheet" href="/assets/css/contact.css">
-<?php $this->endSection(); ?>
-
 <div class="contact-section">
     <h2>Зв'яжіться з нами</h2>
     <form class="contact-form">
