@@ -1,0 +1,16 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # Перенаправлення на 404.php, якщо файл не існує
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ 404.php [L,QSA]
+    
+    # Логування помилок 404
+    ErrorDocument 404 /404.php
+</IfModule>
+
+# Логування помилок 404 у окремий файл
+ErrorLog "${APACHE_LOG_DIR}/404_errors.log"
+LogLevel alert rewrite:trace3

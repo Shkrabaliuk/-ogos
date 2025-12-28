@@ -22,12 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("INSERT INTO posts (title, content) VALUES (?, ?)");
         $stmt->execute([$title, $content]);
     }
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit;
 }
 
 $pageTitle = $id ? "Редагування" : "Новий пост";
-require 'includes/header.php';
+require '../includes/templates/header.php';
 ?>
 
 <main class="container"> <form method="POST">
@@ -40,9 +40,9 @@ require 'includes/header.php';
 
         <div style="margin-top: 20px; display: flex; gap: 10px;">
             <button type="submit" class="btn btn-primary">Зберегти</button>
-            <a href="index.php" class="btn btn-outline">Скасувати</a>
+            <a href="../index.php" class="btn btn-outline">Скасувати</a>
         </div>
     </form>
 </main>
 
-<?php require 'includes/footer.php'; ?>
+<?php require '../includes/templates/footer.php'; ?>

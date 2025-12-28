@@ -11,7 +11,7 @@ if (!$post) {
 }
 
 $pageTitle = $post['title'];
-require 'includes/header.php';
+require 'includes/templates/header.php';
 ?>
 
 <main>
@@ -29,10 +29,10 @@ require 'includes/header.php';
         <div class="meta-bottom" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; display: flex; gap: 15px;">
             <span><?= date('d.m.Y', strtotime($post['created_at'])) ?></span>
             <?php if (is_admin()): ?>
-                <a href="post-editor.php?id=<?= $post['id'] ?>" style="color: #d00; text-decoration: none;">✎ Редагувати</a>
+                <a href="admin/post-editor.php?id=<?= $post['id'] ?>" style="color: #d00; text-decoration: none;">✎ Редагувати</a>
             <?php endif; ?>
         </div>
     </article>
 </main>
 
-<?php require 'includes/footer.php'; ?>
+<?php require 'includes/templates/footer.php'; ?>

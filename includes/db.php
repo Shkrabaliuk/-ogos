@@ -7,7 +7,7 @@ $configPath = __DIR__ . '/../config.php';
 if (!file_exists($configPath)) {
     // Якщо конфігу немає, треба перенаправити на install.php
     // Визначаємо шлях до install.php відносно кореня сайту
-    header("Location: install.php");
+    header("Location: ../install/install.php");
     exit;
 }
 

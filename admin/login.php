@@ -8,7 +8,7 @@ session_start();
 // Вихід
 if (isset($_GET['logout'])) {
     session_destroy();
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit;
 }
 
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("INSERT INTO users (password) VALUES (?)");
         $stmt->execute([$hash]);
         $_SESSION['is_admin'] = true;
-        header("Location: index.php"); // Успіх
+        header("Location: ../index.php"); // Успіх
         exit;
     } else {
         // ПЕРЕВІРКА ПАРОЛЯ
@@ -42,11 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['is_admin'] = true;
             header("Location: index.php"); // Успіх
         } else {
-            header("Location: index.php?login_error=1"); // Помилка (відкриє попап знову)
+            header("Location: ../index.php?login_error=1"); // Помилка (відкриє попап знову)
         }
         exit;
     }
 }
 
 // Якщо відкрили файл просто так — кидаємо на головну
-header("Location: index.php");
+header("Location: ../index.php");

@@ -4,7 +4,7 @@ require_once 'includes/functions.php';
 
 $posts = get_posts();
 $pageTitle = "Головна";
-require 'includes/header.php'; 
+require 'includes/templates/header.php';
 ?>
 
 <main>
@@ -25,7 +25,7 @@ require 'includes/header.php';
                     <span><?= date('d.m.Y', strtotime($post['created_at'])) ?></span>
                     
                     <?php if (is_admin()): ?>
-                        <a href="post-editor.php?id=<?= $post['id'] ?>" style="color: #d00; text-decoration: none; font-size: 12px;">✎ Редагувати</a>
+                        <a href="admin/post-editor.php?id=<?= $post['id'] ?>" style="color: #d00; text-decoration: none; font-size: 12px;">✎ Редагувати</a>
                     <?php endif; ?>
                 </div>
             </article>
@@ -38,4 +38,4 @@ require 'includes/header.php';
     <?php endif; ?>
 </main>
 
-<?php require 'includes/footer.php'; ?>
+<?php require 'includes/templates/footer.php'; ?>

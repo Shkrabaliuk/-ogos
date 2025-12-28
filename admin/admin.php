@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'config.php';
+require '../config.php';
 
 // 1. ПІДКЛЮЧЕННЯ ДО БД
 try {
@@ -21,7 +21,7 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS `users` (
 // 3. ЛОГІКА: ВИХІД
 if (isset($_GET['logout'])) {
     session_destroy();
-    header("Location: admin.php");
+    header("Location: ./");
     exit;
 }
 
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
         $stmt->execute([$username, $hash]);
         $_SESSION['user_id'] = $pdo->lastInsertId();
-        header("Location: admin.php");
+        header("Location: ./");
         exit;
     } else {
         // Вхід
@@ -64,7 +64,7 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <title>Вхід в адмінку</title>
-    <link rel="stylesheet" href="assets/css/install.css">
+    <link rel="stylesheet" href="../assets/css/install.css">
 </head>
 <body>
     <div class="container">
@@ -90,7 +90,7 @@ if (!isset($_SESSION['user_id'])) {
             <button type="submit"><?= $userExists ? 'Увійти' : 'Створити акаунт' ?></button>
         </form>
         <p style="margin-top: 20px; text-align: center;">
-            <a href="index.php" style="color: #888; text-decoration: none;">← На головну</a>
+            <a href="../index.php" style="color: #888; text-decoration: none;">← На головну</a>
         </p>
     </div>
 </body>
@@ -120,7 +120,7 @@ $posts = $pdo->query("SELECT * FROM posts ORDER BY created_at DESC")->fetchAll(P
 <head>
     <meta charset="UTF-8">
     <title>Адмін-панель</title>
-    <link rel="stylesheet" href="assets/css/style.css"> <style>
+    <link rel="stylesheet" href="../assets/css/style.css"> <style>
         /* Додаткові стилі для адмінки */
         .admin-bar {
             display: flex; justify-content: space-between; align-items: center;
@@ -145,7 +145,7 @@ $posts = $pdo->query("SELECT * FROM posts ORDER BY created_at DESC")->fetchAll(P
             <span style="font-weight: bold;">Адмін-панель</span>
         </div>
         <div>
-            <a href="index.php" style="margin-right: 15px; text-decoration: none; color: #2a7ae2;">Перейти на сайт</a>
+            <a href="../index.php" style="margin-right: 15px; text-decoration: none; color: #2a7ae2;">Перейти на сайт</a>
             <a href="?logout=1" style="color: #999; text-decoration: none;">Вийти</a>
         </div>
     </div>
@@ -154,7 +154,7 @@ $posts = $pdo->query("SELECT * FROM posts ORDER BY created_at DESC")->fetchAll(P
 <main>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h1 style="margin: 0;">Ваші пости</h1>
-        <a href="edit.php" class="btn">Написати пост</a>
+        <a href="post-editor.php" class="btn">Написати пост</a>
     </div>
 
     <?php foreach ($posts as $post): ?>
@@ -164,7 +164,7 @@ $posts = $pdo->query("SELECT * FROM posts ORDER BY created_at DESC")->fetchAll(P
                 <div class="meta"><?= date('d.m.Y H:i', strtotime($post['created_at'])) ?></div>
             </div>
             <div>
-                <a href="edit.php?id=<?= $post['id'] ?>" style="color: #2a7ae2; margin-right: 10px;">Ред.</a>
+                <a href="post-editor.php?id=<?= $post['id'] ?>" style="color: #2a7ae2; margin-right: 10px;">Ред.</a>
                 <a href="?delete=<?= $post['id'] ?>" onclick="return confirm('Видалити цей пост?')" style="color: #d00;">Вид.</a>
             </div>
         </div>
