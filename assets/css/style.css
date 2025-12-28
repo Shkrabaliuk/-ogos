@@ -1,128 +1,63 @@
-/* assets/css/install.css */
+:root {
+    --text: #111;
+    --subtext: #777;
+    --accent: #000; /* Чорний акцент для строгості */
+    --bg: #fff;
+    --border: #eee;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #fff;
-    color: #000;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
     margin: 0;
     padding: 0;
-    line-height: 1.4;
 }
 
 .container {
-    max-width: 550px;
-    margin: 100px auto;
-    padding: 20px;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
-/* Заголовок "Встановлення" */
-h1 {
-    font-size: 36px;
+/* Header */
+header {
+    padding: 30px 0 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo a {
+    font-size: 20px;
     font-weight: bold;
-    margin-bottom: 40px;
-    letter-spacing: -0.5px;
+    color: var(--text);
+    text-decoration: none;
 }
 
-/* Підзаголовок про параметри хостингу */
-.subtitle {
-    color: #888;
-    font-size: 15px;
-    margin-bottom: 30px;
-}
+/* Posts */
+article { margin-bottom: 60px; }
 
-.form-group {
-    margin-bottom: 25px;
-}
+h2 { font-size: 24px; font-weight: 700; margin: 0 0 10px 0; }
+h2 a { color: var(--text); text-decoration: none; border-bottom: 1px solid transparent; }
+h2 a:hover { border-bottom-color: var(--text); }
 
-label {
-    display: block;
-    font-size: 15px;
-    color: #888;
-    margin-bottom: 8px;
-}
+.content { font-size: 17px; margin-bottom: 10px; color: #333; }
 
-/* Інпути як сірі плашки */
-input[type="text"],
-input[type="password"] {
-    width: 100%;
-    background-color: #f0f2f2; /* Світло-сірий фон */
-    border: none;
-    padding: 12px 15px;
-    font-size: 16px;
-    color: #000;
-    border-radius: 4px; /* Легке заокруглення */
-    box-sizing: border-box;
-    outline: none;
-}
+.meta-bottom { font-size: 13px; color: var(--subtext); }
 
-input:focus {
-    background-color: #e8eaea; /* Трохи темніше при фокусі */
-}
+/* Buttons */
+.btn { cursor: pointer; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 13px; border: 0; }
+.btn-primary { background: #000; color: #fff; }
+.btn-primary:hover { opacity: 0.8; }
+.btn-outline { background: #f5f5f5; color: #333; }
 
-/* Поле для двох інпутів (логін/пароль БД) */
-.double-input input {
-    margin-bottom: 2px;
-}
-.double-input input:first-child {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-}
-.double-input input:last-child {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-}
+/* Modal */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 999; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal-box { background: #fff; padding: 30px; border: 1px solid #ddd; border-radius: 8px; width: 100%; max-width: 300px; text-align: center; }
+.form-control { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
 
-.hint {
-    font-size: 13px;
-    color: #999;
-    margin-top: 5px;
-}
-
-/* Кнопка */
-button {
-    background-color: #e67e45; /* Той самий помаранчевий */
-    color: #fff;
-    border: none;
-    padding: 14px 24px;
-    font-size: 18px;
-    font-weight: 500;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 20px;
-}
-
-button:hover {
-    background-color: #d66e35;
-}
-
-button:disabled {
-    background-color: #ccc;
-    cursor: default;
-}
-
-.keyboard-hint {
-    color: #999;
-    font-size: 12px;
-    margin-left: 10px;
-}
-
-/* Повідомлення */
-.error-message {
-    color: #d00;
-    margin-bottom: 20px;
-    display: none;
-}
-.error-message.show { display: block; }
-
-.success-message {
-    color: #00a000;
-    margin-bottom: 20px;
-    display: none;
-}
-.success-message.show { display: block; }
-
-.loading {
-    display: none; 
-    color: #888; 
-    margin-top: 20px;
-}
-.loading.show { display: block; }
+/* Footer */
+footer { border-top: 1px solid var(--border); padding: 30px 0; margin-top: 50px; font-size: 12px; color: var(--subtext); text-align: center; }
