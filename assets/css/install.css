@@ -1,128 +1,191 @@
-/* assets/css/install.css */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #fff;
-    color: #000;
-    margin: 0;
-    padding: 0;
-    line-height: 1.4;
+:root {
+    --primary: #F4B942;
+    --orange: #E67E48;
+    --text: #1a1a1a;
+    --subtext: #666;
+    --bg: #ffffff;
+    --border: #e0e0e0;
+    --gray: #f5f5f5;
+    --green: #4CAF50;
 }
 
-.container {
-    max-width: 550px;
-    margin: 100px auto;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.install-container {
+    max-width: 500px;
+    width: 100%;
     padding: 20px;
 }
 
-/* Заголовок "Встановлення" */
-h1 {
-    font-size: 36px;
-    font-weight: bold;
-    margin-bottom: 40px;
-    letter-spacing: -0.5px;
+.install-icon {
+    text-align: center;
+    margin-bottom: 32px;
 }
 
-/* Підзаголовок про параметри хостингу */
-.subtitle {
-    color: #888;
-    font-size: 15px;
-    margin-bottom: 30px;
+.install-icon img {
+    width: 80px;
+    height: 80px;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.install-section {
+    margin-bottom: 32px;
+}
+
+.install-section h2 {
+    font-size: 14px;
+    color: var(--subtext);
+    margin-bottom: 16px;
 }
 
 .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
-label {
+.form-group label {
     display: block;
-    font-size: 15px;
-    color: #888;
+    font-size: 14px;
+    font-weight: 500;
     margin-bottom: 8px;
 }
 
-/* Інпути як сірі плашки */
-input[type="text"],
-input[type="password"] {
+.form-group input,
+.form-group select {
     width: 100%;
-    background-color: #f0f2f2; /* Світло-сірий фон */
-    border: none;
-    padding: 12px 15px;
-    font-size: 16px;
-    color: #000;
-    border-radius: 4px; /* Легке заокруглення */
-    box-sizing: border-box;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    background: var(--bg);
+}
+
+.form-group input:focus,
+.form-group select:focus {
     outline: none;
+    border-color: var(--primary);
 }
 
-input:focus {
-    background-color: #e8eaea; /* Трохи темніше при фокусі */
+.form-group input[readonly] {
+    background: var(--gray);
+    color: var(--green);
 }
 
-/* Поле для двох інпутів (логін/пароль БД) */
-.double-input input {
-    margin-bottom: 2px;
-}
-.double-input input:first-child {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-}
-.double-input input:last-child {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-}
-
-.hint {
+.form-hint {
     font-size: 13px;
-    color: #999;
-    margin-top: 5px;
+    color: var(--subtext);
+    margin-top: 4px;
 }
 
-/* Кнопка */
-button {
-    background-color: #e67e45; /* Той самий помаранчевий */
-    color: #fff;
+.install-button {
+    width: 100%;
+    padding: 14px;
+    background: var(--orange);
+    color: white;
     border: none;
-    padding: 14px 24px;
-    font-size: 18px;
+    border-radius: 8px;
+    font-size: 16px;
     font-weight: 500;
-    border-radius: 5px;
     cursor: pointer;
-    margin-top: 20px;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-button:hover {
-    background-color: #d66e35;
+.install-button:hover {
+    opacity: 0.9;
 }
 
-button:disabled {
-    background-color: #ccc;
-    cursor: default;
+.install-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-.keyboard-hint {
-    color: #999;
-    font-size: 12px;
-    margin-left: 10px;
-}
-
-/* Повідомлення */
 .error-message {
-    color: #d00;
+    background: #ffebee;
+    color: #c62828;
+    padding: 12px 16px;
+    border-radius: 8px;
     margin-bottom: 20px;
-    display: none;
+    font-size: 14px;
 }
-.error-message.show { display: block; }
 
 .success-message {
-    color: #00a000;
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 12px 16px;
+    border-radius: 8px;
     margin-bottom: 20px;
-    display: none;
+    font-size: 14px;
 }
-.success-message.show { display: block; }
+
+.db-selector {
+    position: relative;
+}
+
+.db-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.db-dropdown.active {
+    display: block;
+}
+
+.db-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.db-option:hover {
+    background: var(--gray);
+}
 
 .loading {
-    display: none; 
-    color: #888; 
-    margin-top: 20px;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid white;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
 }
-.loading.show { display: block; }
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

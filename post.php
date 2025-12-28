@@ -3,10 +3,14 @@ require_once 'includes/db.php';
 require_once 'includes/functions.php';
 
 $id = $_GET['id'] ?? null;
-$post = get_post($id);
-
-if (!$post) {
+if (!$id) {
     header("Location: index.php");
+    exit;
+}
+
+$post = get_post($id);
+if (!$post) {
+    header("Location: 404.php");
     exit;
 }
 
@@ -14,25 +18,35 @@ $pageTitle = $post['title'];
 require 'includes/templates/header.php';
 ?>
 
-<main>
-    <article>
-        <div style="margin-bottom: 20px;">
-            <a href="index.php" style="color: #666; text-decoration: none; font-size: 14px;">← На головну</a>
-        </div>
+<main class="post-page">
+    <div class="container">
+        <article>
+            <h1><?= htmlspecialchars($post['title']) ?></h1>
 
-        <h1 style="margin-bottom: 20px;"><?= htmlspecialchars($post['title']) ?></h1>
-        
-        <div class="content" style="font-size: 18px; line-height: 1.7; color: #222;">
-            <?= nl2br(htmlspecialchars($post['content'])) ?>
-        </div>
-        
-        <div class="meta-bottom" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; display: flex; gap: 15px;">
-            <span><?= date('d.m.Y', strtotime($post['created_at'])) ?></span>
-            <?php if (is_admin()): ?>
-                <a href="admin/post-editor.php?id=<?= $post['id'] ?>" style="color: #d00; text-decoration: none;">✎ Редагувати</a>
+            <div class="post-meta" style="margin-bottom: 24px;">
+                <span>🕐 <?= time_ago($post['created_at']) ?></span>
+                <span>📖 <?= estimate_reading_time($post['content']) ?> хв читання</span>
+                
+                <?php if (is_admin()): ?>
+                    <a href="/admin/post-editor.php?id=<?= $post['id'] ?>" style="color: #E67E48;">✎ Редагувати</a>
+                <?php endif; ?>
+            </div>
+
+            <?php if (!empty($post['tags'])): ?>
+                <div class="post-tags" style="margin-bottom: 32px;">
+                    <?php foreach (parse_tags($post['tags']) as $tag): ?>
+                        <a href="/?search=<?= urlencode($tag) ?>" class="tag">#<?= htmlspecialchars($tag) ?></a>
+                    <?php endforeach; ?>
+                </div>
             <?php endif; ?>
-        </div>
-    </article>
+
+            <div class="content">
+                <?= markdown($post['content']) ?>
+            </div>
+        </article>
+
+        <a href="/index.php" class="back-link">← Назад до всіх постів</a>
+    </div>
 </main>
 
 <?php require 'includes/templates/footer.php'; ?>

@@ -1,224 +1,250 @@
 <?php
-// install.php
+session_start();
 
-// 1. AJAX: ОТРИМАННЯ СПИСКУ БАЗ ДАНИХ
-if (isset($_POST['action']) && $_POST['action'] === 'get_databases') {
-    header('Content-Type: application/json');
+if (file_exists('../config.php')) {
+    header("Location: ../index.php");
+    exit;
+}
+
+$error = '';
+$success = '';
+$databases = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $host = $_POST['host'] ?? 'localhost';
+    $user = $_POST['user'] ?? '';
+    $pass = $_POST['pass'] ?? '';
+    $dbname = $_POST['dbname'] ?? '';
+    $blog_password = $_POST['blog_password'] ?? '';
+
+    if (empty($user) || empty($dbname) || empty($blog_password)) {
+        $error = 'Заповніть всі поля';
+    } else {
+        try {
+            $pdo = new PDO("mysql:host=$host;charset=utf8mb4", $user, $pass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ]);
+
+            $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+            $pdo->exec("USE `$dbname`");
+
+            // Таблиця користувачів
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `users` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+                `password` varchar(255) NOT NULL,
+                PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            // Таблиця постів з тегами
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `posts` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+                `title` varchar(255) NOT NULL,
+                `content` text NOT NULL,
+                `tags` text,
+                `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            // Таблиця налаштувань
+            $pdo->exec("CREATE TABLE IF NOT EXISTS `settings` (
+                `key` varchar(100) NOT NULL,
+                `value` text,
+                PRIMARY KEY (`key`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            // Створення користувача
+            $hash = password_hash($blog_password, PASSWORD_DEFAULT);
+            $stmt = $pdo->prepare("INSERT INTO users (password) VALUES (?)");
+            $stmt->execute([$hash]);
+
+            // Дефолтні налаштування
+            $defaults = [
+                'blog_name' => 'Мій Блог',
+                'blog_subtitle' => 'Підзаголовок',
+                'posts_per_page' => '10',
+                'footer_text' => '© Автор блогу',
+                'footer_engine' => 'Рушій — Мій',
+                'avatar' => ''
+            ];
+            
+            foreach ($defaults as $key => $value) {
+                $stmt = $pdo->prepare("INSERT INTO settings (`key`, value) VALUES (?, ?)");
+                $stmt->execute([$key, $value]);
+            }
+
+            // Створення config.php
+            $config = "<?php\ndefine('DB_HOST', '$host');\ndefine('DB_NAME', '$dbname');\ndefine('DB_USER', '$user');\ndefine('DB_PASS', '$pass');\n";
+            file_put_contents('../config.php', $config);
+
+            $success = 'Встановлення завершено! Перенаправлення...';
+            header("refresh:2;url=../admin/admin.php");
+        } catch (Exception $e) {
+            $error = 'Помилка: ' . $e->getMessage();
+        }
+    }
+}
+
+// Отримання списку БД для dropdown
+if (isset($_POST['get_databases'])) {
+    $host = $_POST['host'] ?? 'localhost';
+    $user = $_POST['user'] ?? '';
+    $pass = $_POST['pass'] ?? '';
     
-    $server = $_POST['server'] ?? 'localhost';
-    $user = $_POST['username'] ?? 'root';
-    $password = $_POST['password'] ?? '';
-
     try {
-        // Підключаємося без вибору конкретної бази
-        $dsn = "mysql:host=$server;charset=utf8mb4";
-        $pdo = new PDO($dsn, $user, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-        
-        // Отримуємо список баз
+        $pdo = new PDO("mysql:host=$host;charset=utf8mb4", $user, $pass);
         $stmt = $pdo->query("SHOW DATABASES");
         $databases = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        
-        // Фільтруємо системні бази (їх краще не чіпати)
-        $databases = array_diff($databases, ['information_schema', 'mysql', 'performance_schema', 'sys']);
-        
-        echo json_encode(['success' => true, 'databases' => array_values($databases)]);
+        echo json_encode(['success' => true, 'databases' => $databases]);
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
     exit;
 }
-
-// 2. ОБРОБКА ВСТАНОВЛЕННЯ (як і раніше)
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    header('Content-Type: application/json');
-    $server = $_POST['server'] ?? 'localhost';
-    $user = $_POST['username'] ?? 'root';
-    $password = $_POST['password'] ?? '';
-    $database = $_POST['database'] ?? '';
-    
-    try {
-        $dsn = "mysql:host=$server;charset=utf8mb4";
-        $pdo = new PDO($dsn, $user, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-        
-        // Створюємо базу, якщо це нова назва
-        $pdo->exec("CREATE DATABASE IF NOT EXISTS `$database`");
-        $pdo->exec("USE `$database`");
-        
-        $sql = "CREATE TABLE IF NOT EXISTS `posts` (
-            `id` int(11) NOT NULL AUTO_INCREMENT,
-            `title` varchar(255) NOT NULL,
-            `content` text NOT NULL,
-            `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-        $pdo->exec($sql);
-
-        $configContent = "<?php
-define('DB_HOST', '$server');
-define('DB_NAME', '$database');
-define('DB_USER', '$user');
-define('DB_PASS', '$password');
-";
-        if (file_put_contents('config.php', $configContent) === false) {
-             throw new Exception("Не вдалося створити config.php");
-        }
-        echo json_encode(['success' => true]);
-        exit;
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        exit;
-    }
-}
-$alreadyInstalled = file_exists('config.php');
 ?>
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Встановлення</title>
+    <title>Встановлення блогу</title>
     <link rel="stylesheet" href="../assets/css/install.css">
 </head>
 <body>
-    <div class="container">
-        <?php if ($alreadyInstalled): ?>
-            <h1>Вже встановлено</h1>
-            <p>Блог налаштований. Видаліть файл <code>config.php</code>, якщо хочете почати заново.</p>
-            <a href="../index.php"><button>Перейти до блогу</button></a>
-        <?php else: ?>
-            
-            <h1>Встановлення</h1>
-            <p class="subtitle">Введіть параметри для підключення до MySQL:</p>
-            
-            <div class="error-message" id="errorMessage"></div>
-            <div class="success-message" id="successMessage">✓ Успішно! Переходимо на сайт...</div>
-            
-            <form id="installForm">
-                <div class="form-group">
-                    <label>Сервер (Host)</label>
-                    <input type="text" name="server" id="server" value="localhost" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Користувач та пароль БД</label>
-                    <div class="double-input">
-                        <input type="text" name="username" id="username" placeholder="root" required>
-                        <input type="password" name="password" id="password" placeholder="Пароль">
-                    </div>
-                </div>
 
-                <div class="form-group">
-                    <label>Ім'я бази даних</label>
-                    <input type="text" name="database" id="database" list="dbList" placeholder="my_blog" autocomplete="off" required>
-                    <datalist id="dbList"></datalist>
-                    
-                    <div class="hint" id="dbHint">Натисніть сюди, щоб завантажити список існуючих баз, або введіть нову.</div>
-                </div>
-                
-                <div class="form-group" style="margin-top: 40px;">
-                    <label>Створіть пароль адміністратора:</label>
-                    <input type="password" name="admin_password" required>
-                </div>
-                
-                <button type="submit" id="submitBtn">Почати блог</button>
-                <span class="keyboard-hint">Ctrl + Enter</span>
-            </form>
-            
-            <div class="loading" id="loading">Працюємо...</div>
-        <?php endif; ?>
+<div class="install-container">
+    <div class="install-icon">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <circle cx="40" cy="40" r="40" fill="#F4B942"/>
+            <path d="M40 20 L45 35 L60 35 L48 45 L53 60 L40 50 L27 60 L32 45 L20 35 L35 35 Z" fill="white"/>
+        </svg>
     </div>
 
-    <script>
-        const form = document.getElementById('installForm');
+    <h1>Встановлення</h1>
+
+    <?php if ($error): ?>
+        <div class="error-message"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
+
+    <?php if ($success): ?>
+        <div class="success-message"><?= htmlspecialchars($success) ?></div>
+    <?php endif; ?>
+
+    <form method="POST" id="installForm">
+        <div class="install-section">
+            <h2>Database parameters that your hosting provider has given you:</h2>
+            
+            <div class="form-group">
+                <label>Server</label>
+                <input type="text" name="host" value="localhost" readonly>
+                <div class="form-hint">Зазвичай це localhost, не змінюйте</div>
+            </div>
+
+            <div class="form-group">
+                <label>User name and password</label>
+                <input type="text" name="user" placeholder="root" required>
+                <input type="password" name="pass" placeholder="Пароль (може бути порожнім)" style="margin-top: 8px;">
+                <div class="form-hint">Отримайте ці дані у вашого хостинг-провайдера</div>
+            </div>
+
+            <div class="form-group">
+                <label>Database name</label>
+                <div class="db-selector">
+                    <input type="text" name="dbname" id="dbnameInput" placeholder="Натисніть щоб вибрати..." onclick="loadDatabases()" required>
+                    <div class="db-dropdown" id="dbDropdown"></div>
+                </div>
+                <div class="form-hint">Виберіть існуючу БД або введіть нову назву (створить автоматично)</div>
+            </div>
+        </div>
+
+        <div class="install-section">
+            <h2>Password you'd like to use to access your blog:</h2>
+            
+            <div class="form-group">
+                <input type="password" name="blog_password" placeholder="Придумайте надійний пароль" required minlength="6">
+                <div class="form-hint">Мінімум 6 символів. Запам'ятайте його!</div>
+            </div>
+        </div>
+
+        <button type="submit" class="install-button" id="submitBtn">
+            <span>Start blogging</span>
+            <span style="font-size: 12px; opacity: 0.7;">Ctrl + Enter</span>
+        </button>
+    </form>
+</div>
+
+<script>
+let databases = [];
+
+async function loadDatabases() {
+    const host = document.querySelector('input[name="host"]').value;
+    const user = document.querySelector('input[name="user"]').value;
+    const pass = document.querySelector('input[name="pass"]').value;
+    
+    if (!user) {
+        alert('Спочатку введіть User name');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('get_databases', '1');
+    formData.append('host', host);
+    formData.append('user', user);
+    formData.append('pass', pass);
+    
+    try {
+        const response = await fetch('', { method: 'POST', body: formData });
+        const data = await response.json();
         
-        if(form) {
-            const dbInput = document.getElementById('database');
-            const dbList = document.getElementById('dbList');
-            const dbHint = document.getElementById('dbHint');
-            const serverInput = document.getElementById('server');
-            const userInput = document.getElementById('username');
-            const passInput = document.getElementById('password');
-
-            // --- ФУНКЦІЯ ЗАВАНТАЖЕННЯ БАЗ ---
-            async function loadDatabases() {
-                // Не вантажимо, якщо немає логіна
-                if (!userInput.value) return;
-
-                dbHint.textContent = "Завантаження списку баз...";
-                
-                const formData = new FormData();
-                formData.append('action', 'get_databases');
-                formData.append('server', serverInput.value);
-                formData.append('username', userInput.value);
-                formData.append('password', passInput.value);
-
-                try {
-                    const response = await fetch(window.location.href, { method: 'POST', body: formData });
-                    const result = await response.json();
-
-                    if (result.success) {
-                        dbList.innerHTML = ''; // Очищаємо старі
-                        result.databases.forEach(db => {
-                            const option = document.createElement('option');
-                            option.value = db;
-                            dbList.appendChild(option);
-                        });
-                        dbHint.textContent = "Виберіть зі списку або введіть нову назву для створення.";
-                        dbHint.style.color = "#00a000";
-                    } else {
-                        dbHint.textContent = "Не вдалося отримати список (перевірте пароль). Але ви можете ввести назву вручну.";
-                        dbHint.style.color = "#d00";
-                    }
-                } catch (e) {
-                    console.error(e);
-                }
-            }
-
-            // Завантажуємо бази, коли користувач клікає на поле "База даних"
-            dbInput.addEventListener('focus', loadDatabases);
-
-
-            // --- ЛОГІКА ВІДПРАВКИ ФОРМИ (ЯК І РАНІШЕ) ---
-            const submitBtn = document.getElementById('submitBtn');
-            const errorMessage = document.getElementById('errorMessage');
-            const successMessage = document.getElementById('successMessage');
-            const loading = document.getElementById('loading');
-            
-            document.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                    e.preventDefault();
-                    form.requestSubmit();
-                }
-            });
-            
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                errorMessage.classList.remove('show');
-                loading.classList.add('show');
-                submitBtn.disabled = true;
-                
-                const formData = new FormData(form);
-                try {
-                    const response = await fetch(window.location.href, { method: 'POST', body: formData });
-                    const result = await response.json();
-                    
-                    loading.classList.remove('show');
-                    if (result.success) {
-                        successMessage.classList.add('show');
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else {
-                        submitBtn.disabled = false;
-                        errorMessage.textContent = result.error;
-                        errorMessage.classList.add('show');
-                    }
-                } catch (error) {
-                    loading.classList.remove('show');
-                    submitBtn.disabled = false;
-                    errorMessage.textContent = 'Connection error';
-                    errorMessage.classList.add('show');
-                }
-            });
+        if (data.success) {
+            databases = data.databases;
+            showDropdown();
+        } else {
+            alert('Помилка підключення: ' + data.error);
         }
-    </script>
+    } catch (e) {
+        alert('Помилка: ' + e.message);
+    }
+}
+
+function showDropdown() {
+    const dropdown = document.getElementById('dbDropdown');
+    dropdown.innerHTML = '';
+    
+    if (databases.length === 0) {
+        dropdown.innerHTML = '<div class="db-option" style="color: #999;">Баз даних не знайдено</div>';
+    } else {
+        databases.forEach(db => {
+            if (!['information_schema', 'mysql', 'performance_schema', 'sys'].includes(db)) {
+                const option = document.createElement('div');
+                option.className = 'db-option';
+                option.textContent = db;
+                option.onclick = () => selectDatabase(db);
+                dropdown.appendChild(option);
+            }
+        });
+    }
+    
+    dropdown.classList.add('active');
+}
+
+function selectDatabase(dbname) {
+    document.getElementById('dbnameInput').value = dbname;
+    document.getElementById('dbDropdown').classList.remove('active');
+}
+
+document.addEventListener('click', function(e) {
+    const selector = document.querySelector('.db-selector');
+    if (!selector.contains(e.target)) {
+        document.getElementById('dbDropdown').classList.remove('active');
+    }
+});
+
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        document.getElementById('installForm').submit();
+    }
+});
+</script>
+
 </body>
 </html>

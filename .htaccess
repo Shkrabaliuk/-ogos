@@ -1,16 +1,14 @@
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
-    
-    # Перенаправлення на 404.php, якщо файл не існує
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ 404.php [L,QSA]
-    
-    # Логування помилок 404
-    ErrorDocument 404 /404.php
-</IfModule>
+# UTF-8
+AddDefaultCharset UTF-8
 
-# Логування помилок 404 у окремий файл
-ErrorLog "${APACHE_LOG_DIR}/404_errors.log"
-LogLevel alert rewrite:trace3
+# Захист конфігу
+<Files "config.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Захист від перегляду директорій
+Options -Indexes
+
+# 404
+ErrorDocument 404 /404.php
