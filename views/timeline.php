@@ -22,8 +22,32 @@ if (empty($posts)): ?>
             </h2>
             
             <div class="post-content">
-                <?= $parser->getExcerpt($post['content'], 400) ?>
+                <?= $parser->parse($post['content']) ?>
             </div>
+            
+            <?php
+            // Завантажуємо теги для поста
+            $stmt = $pdo->prepare("
+                SELECT t.* 
+                FROM tags t
+                JOIN post_tags pt ON t.id = pt.tag_id
+                WHERE pt.post_id = ?
+                ORDER BY t.name
+            ");
+            $stmt->execute([$post['id']]);
+            $tags = $stmt->fetchAll();
+            ?>
+            
+            <?php if (!empty($tags)): ?>
+                <div class="post-tags">
+                    <?php foreach ($tags as $tag): ?>
+                        <a href="/tag/<?= urlencode($tag['name']) ?>" class="tag">
+                            #<?= htmlspecialchars($tag['name']) ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            
         </article>
     <?php endforeach; ?>
 

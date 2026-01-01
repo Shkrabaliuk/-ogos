@@ -4,6 +4,11 @@
 require_once 'config/autoload.php';
 require_once 'config/db.php';
 
+// Ініціалізуємо сесію
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Отримання URL
 $request = $_SERVER['REQUEST_URI'];
 $path = parse_url($request, PHP_URL_PATH);
@@ -52,6 +57,14 @@ if ($post) {
     $stmt->execute([$post['id']]);
     $comments = $stmt->fetchAll();
     
+    // Перевіряємо чи є помилка форми коментарів
+    $error = $_SESSION['comment_error'] ?? null;
+    $commentData = $_SESSION['comment_data'] ?? [];
+    
+    // Очищаємо сесію
+    unset($_SESSION['comment_error']);
+    unset($_SESSION['comment_data']);
+    
     $pageTitle = $post['title'] . " — /\ogos";
     $childView = 'views/post.php';
     
@@ -62,4 +75,3 @@ if ($post) {
 // 3. 404
 http_response_code(404);
 echo "404 - Not Found";
-

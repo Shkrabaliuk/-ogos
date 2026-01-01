@@ -1,6 +1,7 @@
 <?php 
 // Парсимо контент через Neasden
 require_once __DIR__ . '/../includes/ContentParser.php';
+require_once __DIR__ . '/../includes/csrf.php';
 $parser = new ContentParser();
 
 if (empty($post)): ?>
@@ -34,15 +35,58 @@ if (empty($post)): ?>
         <?php endif; ?>
         
         <?php if (!empty($tags)): ?>
-            <div class="post-tags" style="margin-top: 24px; font-size: 14px;">
+            <div class="post-tags">
                 <?php foreach ($tags as $tag): ?>
-                    <a href="/tag/<?= urlencode($tag['name']) ?>" style="margin-right: 12px; color: #556677;">
+                    <a href="/tag/<?= urlencode($tag['name']) ?>" class="tag">
                         #<?= htmlspecialchars($tag['name']) ?>
                     </a>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
     </article>
+    
+    <!-- Форма додавання коментаря -->
+    <section class="comment-form-section">
+        <h3 class="comment-form-heading">Додати коментар</h3>
+        
+        <?php if (isset($error)): ?>
+            <div class="error-message"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+        
+        <form method="POST" action="/post_comment.php" class="comment-form">
+            <?= csrfField() ?>
+            <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
+            <input type="hidden" name="redirect_url" value="/<?= htmlspecialchars($post['slug']) ?>">
+            
+            <div class="form-group">
+                <label for="author_name">Ім'я</label>
+                <input 
+                    type="text" 
+                    id="author_name" 
+                    name="author_name" 
+                    required 
+                    maxlength="100"
+                    class="form-input"
+                    placeholder="Ваше ім'я"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="content">Коментар</label>
+                <textarea 
+                    id="content" 
+                    name="content" 
+                    required 
+                    maxlength="5000"
+                    rows="5"
+                    class="form-textarea"
+                    placeholder="Ваш коментар..."
+                ></textarea>
+            </div>
+            
+            <button type="submit" class="btn-submit">Відправити</button>
+        </form>
+    </section>
     
     <?php if (!empty($comments)): ?>
         <section class="comments">
