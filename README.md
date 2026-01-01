@@ -24,8 +24,17 @@ cd cms4blog
 mysql -u root -p < database.sql
 ```
 
-Або через phpMyAdmin: 
+Або через phpMyAdmin:
 - Імпорт → `database.sql` (включає всі таблиці + Rose Search)
+
+4. Створіть таблиці для пошукового індексу Rose:
+```bash
+php init_search_tables.php
+```
+Або запустіть переіндексацію, яка автоматично створить таблиці:
+```bash
+php reindex.php
+```
 
 ### 3. Налаштування
 Відредагуйте `config/db.php`:

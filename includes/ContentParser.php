@@ -71,11 +71,12 @@ class ContentParser {
         
         // Інтерпретуємо розмітку
         $this->interpreter->setInput($content);
-        $result = $this->interpreter->run();
+        $this->interpreter->run();
+        $result = $this->interpreter->getModel();
         
         // Рендеримо в HTML
         $this->renderer->setModel($result);
-        $html = $this->renderer->render();
+        $html = $this->renderer->getHTML();
         
         return $html;
     }

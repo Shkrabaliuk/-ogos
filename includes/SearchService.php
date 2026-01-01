@@ -91,7 +91,7 @@ class SearchService
         $snippetBuilder->setSnippetLineSeparator(' … ');
         
         // Створюємо query
-        $query = Query::fromString($queryString);
+        $query = new Query($queryString);
         
         // Шукаємо
         $resultSet = $finder->find($query);
