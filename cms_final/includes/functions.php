@@ -168,7 +168,7 @@ function generate_page_title($pageTitle = '', $blog_name = '') {
  */
 function get_comments($post_id) {
     global $pdo;
-    $stmt = $pdo->prepare("SELECT * FROM comments WHERE post_id = ? ORDER BY created_at ASC");
+    $stmt = $pdo->prepare("SELECT id, post_id, author, content, created_at FROM comments WHERE post_id = ? ORDER BY created_at ASC");
     $stmt->execute([$post_id]);
     return $stmt->fetchAll();
 }
