@@ -15,6 +15,23 @@ body {
     flex-direction: column;
 }
 
+/* Common Container */
+.common {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Content Area */
+.content {
+    flex: 1;
+    padding: 30px 40px;
+}
+
 /* Container */
 .container {
     max-width: 1200px;
@@ -399,6 +416,14 @@ main {
     margin-top: 3rem;
 }
 
+.footer a {
+    text-decoration: none;
+}
+
+.footer a i {
+    text-decoration: none !important;
+}
+
 .footer .engine {
     margin-top: 0.5rem;
     font-size: 0.9rem;
@@ -425,6 +450,10 @@ main {
     opacity: 0.7;
 }
 
+.footer .e2-visual-login i {
+    text-decoration: none !important;
+}
+
 .footer .e2-admin-link {
     text-decoration: none;
     cursor: pointer;
@@ -439,7 +468,10 @@ main {
 
 .footer .e2-rss-button:hover {
     color: var(--hoverColor);
-    text-decoration: underline;
+}
+
+.footer .e2-rss-button i {
+    text-decoration: none !important;
 }
 
 footer {
@@ -828,6 +860,39 @@ a .e2-svgi {
     margin-bottom: 30px;
 }
 
+/* Аватарки коментарів */
+.e2-comment-userpic-area {
+    flex-shrink: 0;
+}
+
+.e2-comment-userpic-area-inner {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #e0e0e0;
+}
+
+.e2-comment-userpic-area-inner-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.e2-comment-userpic-area-inner-placeholder svg {
+    width: 32px;
+    height: 32px;
+    fill: #999;
+}
+
+.e2-comment-userpic-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .comment-form-heading {
     font-size: 20px;
     margin: 40px 0 20px;
@@ -855,4 +920,47 @@ a .e2-svgi {
 
 .comment-form .form-textarea {
     resize: vertical;
+}
+/* Теги та Band */
+.band {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.band-item {
+    display: inline-block;
+}
+
+.band-item-inner {
+    display: inline-block;
+}
+
+.e2-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--inputBackgroundColor);
+    color: var(--textColor);
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.e2-tag:hover {
+    background: var(--thinRuleColor);
+}
+
+/* Font Awesome іконки */
+.fas, .far, .fab {
+    margin-right: 4px;
+}
+
+.e2-search-icon i {
+    font-size: 16px;
+}
+
+.footer i {
+    margin-right: 4px;
 }

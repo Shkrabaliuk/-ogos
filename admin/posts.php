@@ -91,10 +91,10 @@ require '../includes/templates/header.php';
               <td><?= date('d.m.Y H:i', strtotime($post['created_at'])) ?></td>
               <td>
                 <div class="post-actions">
-                  <a href="post-editor.php?id=<?= $post['id'] ?>">Редагувати</a>
+                  <a href="post-editor.php?id=<?= $post['id'] ?>" title="Редагувати"><i class="fas fa-edit"></i></a>
                   <a href="?delete=<?= $post['id'] ?>&csrf=<?= generate_csrf_token() ?>" 
-                     class="btn-delete" 
-                     onclick="return confirm('Ви впевнені? Це також видалить всі коментарі до цього поста.')">Видалити</a>
+                     class="btn-delete" title="Видалити"
+                     onclick="return confirm('Ви впевнені? Це також видалить всі коментарі до цього поста.')"><i class="fas fa-trash"></i></a>
                 </div>
               </td>
             </tr>

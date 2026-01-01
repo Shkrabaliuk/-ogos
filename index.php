@@ -35,12 +35,16 @@ require 'includes/templates/header.php';
       </article>
 
       <div class="e2-note-meta">
-        <span><?= time_ago($post['created_at']) ?></span>
+        <span><i class="far fa-clock"></i> <?= time_ago($post['created_at']) ?></span>
         <!-- <span><?= estimate_reading_time($post['content']) ?> хв</span> -->
         <?php if (!empty($post['tags'])): ?>
-          <?php foreach (parse_tags($post['tags']) as $tag): ?>
-            <a href="?search=<?= urlencode($tag) ?>" class="e2-tag"><?= htmlspecialchars($tag) ?></a>
-          <?php endforeach; ?>
+          <div class="band">
+            <?php foreach (parse_tags($post['tags']) as $tag): ?>
+              <div class="band-item">
+                <a href="?search=<?= urlencode($tag) ?>" class="e2-tag band-item-inner"><?= htmlspecialchars($tag) ?></a>
+              </div>
+            <?php endforeach; ?>
+          </div>
         <?php endif; ?>
       </div>
 

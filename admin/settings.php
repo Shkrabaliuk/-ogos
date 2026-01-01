@@ -85,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = 'Налаштування збережено!';
         }
     }
+    }
 }
 
 $blog_name = get_setting('blog_name', 'Мій Блог');
@@ -180,7 +181,7 @@ require '../includes/templates/header.php';
   </div>
 
   <div class="footer">
-    <a href="../index.php">← Повернутись на сайт</a>
+    <a href="../index.php" title="Повернутись на сайт"><i class="fas fa-home"></i></a>
   </div>
 </div>
 

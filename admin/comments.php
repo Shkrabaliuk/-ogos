@@ -124,7 +124,7 @@ require '../includes/templates/header.php';
               <input type="hidden" name="comment_id" value="<?= $comment['id'] ?>">
               <input type="hidden" name="action" value="delete">
               <input type="hidden" name="csrf" value="<?= generate_csrf_token() ?>">
-              <button type="submit" class="btn-delete">Видалити</button>
+              <button type="submit" class="btn-delete" title="Видалити"><i class="fas fa-trash"></i></button>
             </form>
           </div>
         </div>

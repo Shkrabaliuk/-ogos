@@ -25,24 +25,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $password = $_POST['password'];
 
-    if (!$userExists) {
-        // Створення першого адміна
-        $hash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("INSERT INTO users (password) VALUES (?)");
-        $stmt->execute([$hash]);
-        $_SESSION['is_admin'] = true;
-        header("Location: settings.php");
-        exit;
-    } else {
-        // Звичайний логін
-        $stmt = $pdo->query("SELECT * FROM users LIMIT 1");
-        $user = $stmt->fetch();
-        if ($user && password_verify($password, $user['password'])) {
+        if (!$userExists) {
+            // Створення першого адміна
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $pdo->prepare("INSERT INTO users (password) VALUES (?)");
+            $stmt->execute([$hash]);
             $_SESSION['is_admin'] = true;
             header("Location: settings.php");
             exit;
         } else {
-            $error = "Невірний пароль";
+            // Звичайний логін
+            $stmt = $pdo->query("SELECT * FROM users LIMIT 1");
+            $user = $stmt->fetch();
+            if ($user && password_verify($password, $user['password'])) {
+                $_SESSION['is_admin'] = true;
+                header("Location: settings.php");
+                exit;
+            } else {
+                $error = "Невірний пароль";
+            }
         }
     }
 }

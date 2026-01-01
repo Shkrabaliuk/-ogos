@@ -36,7 +36,7 @@ require 'includes/templates/header.php';
         <nav>
           <div class="band-item">
             <div class="band-item-inner">
-              <span title="<?= date('d F Y, H:i', strtotime($post['created_at'])) ?>"><?= time_ago($post['created_at']) ?></span>
+              <i class="far fa-clock"></i> <span title="<?= date('d F Y, H:i', strtotime($post['created_at'])) ?>"><?= time_ago($post['created_at']) ?></span>
             </div>
           </div>
           
