@@ -8,6 +8,9 @@
 
 require_once __DIR__ . '/../config/autoload.php';
 
+// Явно завантажуємо Configuration.php, бо там два класи (Configuration + DefaultConfiguration)
+require_once __DIR__ . '/../assets/libs/neasden/Configuration.php';
+
 use Neasden\Configuration;
 use Neasden\DefaultConfiguration;
 use Neasden\Interpreter;
