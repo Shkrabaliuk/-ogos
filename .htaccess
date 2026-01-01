@@ -1,34 +1,69 @@
-# /\OGOS - URL Rewriting
-RewriteEngine On
-RewriteBase /
+# /\OGOS - Minimal .htaccess (based on Aegea)
 
-# Дозволити доступ до статичних файлів
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-
-# Всі інші запити → index.php
-RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
-
-# Безпека
-<FilesMatch "(\.htaccess|database\.sql|db\.php)$">
-    Deny from all
-</FilesMatch>
+DirectoryIndex index.php
+Options -Indexes
 
 # UTF-8 за замовчуванням
 AddDefaultCharset UTF-8
 
-# Компресія (опціонально)
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Fix mod_rewrite's trailing slash bug
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule (.+)[^/]$ $1/ [R=301,L]
+
+# Заборонити доступ до .htaccess
+RewriteCond %{REQUEST_URI} \.htaccess$
+RewriteRule .* - [F]
+
+# Якщо файл існує - віддати його
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Не перезаписувати сам index.php
+RewriteRule ^index\.php$ - [L]
+
+# Всі інші запити -> index.php
+RewriteRule .* index.php?go=$0 [QSA,L]
 </IfModule>
 
-# Кешування статики (опціонально)
+# Безпека: заборона доступу до критичних файлів
+<IfModule mod_authz_core.c>
+  <FilesMatch "^.*\.(sql|htaccess|json)$">
+    Require all denied
+  </FilesMatch>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+  <FilesMatch "^.*\.(sql|htaccess|json)$">
+    Deny from all
+  </FilesMatch>
+</IfModule>
+
+# PHP налаштування для PHP 8.x
+<IfModule mod_php8.c>
+php_flag display_errors off
+php_value error_reporting 32767
+php_value date.timezone Europe/Kiev
+php_value upload_max_filesize 64M
+php_value post_max_size 64M
+</IfModule>
+
+# Компресія
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json
+</IfModule>
+
+# Кешування статики
 <IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType image/jpg "access plus 1 year"
-    ExpiresByType image/jpeg "access plus 1 year"
-    ExpiresByType image/png "access plus 1 year"
-    ExpiresByType image/svg+xml "access plus 1 year"
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
+ExpiresActive On
+ExpiresByType image/jpg "access plus 1 year"
+ExpiresByType image/jpeg "access plus 1 year"
+ExpiresByType image/png "access plus 1 year"
+ExpiresByType image/webp "access plus 1 year"
+ExpiresByType image/svg+xml "access plus 1 month"
+ExpiresByType text/css "access plus 1 month"
+ExpiresByType application/javascript "access plus 1 month"
+ExpiresByType font/woff2 "access plus 1 year"
 </IfModule>

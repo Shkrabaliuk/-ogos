@@ -19,15 +19,13 @@ cd cms4blog
 ```
 
 ### 2. База даних
-Імпортуйте схему:
+Імпортуйте схему (все в одному файлі):
 ```bash
 mysql -u root -p < database.sql
-mysql -u root -p < database_search.sql
 ```
 
 Або через phpMyAdmin: 
-- Імпорт → `database.sql`
-- Імпорт → `database_search.sql` (таблиці для пошуку)
+- Імпорт → `database.sql` (включає всі таблиці + Rose Search)
 
 ### 3. Налаштування
 Відредагуйте `config/db.php`:
@@ -101,9 +99,11 @@ http://localhost/cms4blog/search.php?q=мінімалізм
 
 ```
 /\ogos/
-├── .htaccess              # URL rewriting
+├── .htaccess              # URL rewriting (based on Aegea)
 ├── index.php              # Front controller (роутер)
-├── database.sql           # Схема БД + тестові дані
+├── database.sql           # Повна схема БД (core + Rose Search)
+├── reindex.php            # Скрипт індексації пошуку
+├── search.php             # Сторінка пошуку
 ├── ├── db.php             # PDO з'єднання
 │   └── autoload.php       # PSR-4 autoloader для Rose
 │
