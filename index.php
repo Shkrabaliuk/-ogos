@@ -1,49 +1,64 @@
 <?php
-require_once 'includes/db.php';
-require_once 'includes/functions.php';
+// index.php - Front Controller
 
-$page = max(1, intval($_GET['page'] ?? 1));
-$per_page = (int)get_setting('posts_per_page', 10);
+require_once 'config/db.php';
 
-$posts = get_posts('', 'DESC', $page);
-$total = get_total_posts('');
-$total_pages = ceil($total / $per_page);
+// Отримання URL
+$request = $_SERVER['REQUEST_URI'];
+$path = parse_url($request, PHP_URL_PATH);
+$path = trim($path, '/');
 
-require 'includes/templates/header.php';
-?>
+// --- РОУТИНГ ---
 
-<?php if (count($posts) > 0): ?>
-    <?php foreach ($posts as $post): ?>
-    <article class="post">
-        <h2><a href="/post.php?id=<?= $post['id'] ?>"><?= htmlspecialchars($post['title']) ?></a></h2>
-        <div class="post-meta">
-            <?= time_ago($post['created_at']) ?>
-            <?php if (!empty($post['tags'])): ?>
-                <?php foreach (parse_tags($post['tags']) as $tag): ?>
-                    · <a href="/tags.php?tag=<?= urlencode($tag) ?>"><?= htmlspecialchars($tag) ?></a>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
-        <div class="post-content">
-            <?= markdown_excerpt($post['content'], 400) ?>
-        </div>
-    </article>
-    <?php endforeach; ?>
+// 1. ГОЛОВНА СТОРІНКА (СТРІЧКА)
+if ($path === '' || $path === 'index.php') {
+    // Отримуємо всі опубліковані пости
+    $stmt = $pdo->query("SELECT * FROM posts WHERE is_published = 1 ORDER BY created_at DESC");
+    $posts = $stmt->fetchAll();
 
-    <?php if ($total_pages > 1): ?>
-    <div class="pagination">
-        <?php if ($page > 1): ?>
-            <a href="?page=<?= $page - 1 ?>">← Новіші</a>
-        <?php endif; ?>
-        <?php if ($page < $total_pages): ?>
-            <a href="?page=<?= $page + 1 ?>">Старіші →</a>
-        <?php endif; ?>
-    </div>
-    <?php endif; ?>
-<?php else: ?>
-    <div class="empty-state">
-        <p>Поки що немає постів</p>
-    </div>
-<?php endif; ?>
+    $pageTitle = "/\ogos";
+    $childView = 'views/timeline.php';
+    
+    require 'views/layout.php';
+    exit;
+}
 
-<?php require 'includes/templates/footer.php'; ?>
+// 2. СТОРІНКА ОДНОГО ПОСТА
+// Шукаємо пост за слагом
+$stmt = $pdo->prepare("SELECT * FROM posts WHERE slug = ? AND is_published = 1");
+$stmt->execute([$path]);
+$post = $stmt->fetch();
+
+if ($post) {
+    // Знайшли пост, тепер завантажуємо теги
+    $stmt = $pdo->prepare("
+        SELECT t.* 
+        FROM tags t
+        JOIN post_tags pt ON t.id = pt.tag_id
+        WHERE pt.post_id = ?
+        ORDER BY t.name
+    ");
+    $stmt->execute([$post['id']]);
+    $tags = $stmt->fetchAll();
+    
+    // Завантажуємо коментарі
+    $stmt = $pdo->prepare("
+        SELECT * 
+        FROM comments 
+        WHERE post_id = ? 
+        ORDER BY created_at ASC
+    ");
+    $stmt->execute([$post['id']]);
+    $comments = $stmt->fetchAll();
+    
+    $pageTitle = $post['title'] . " — /\ogos";
+    $childView = 'views/post.php';
+    
+    require 'views/layout.php';
+    exit;
+}
+
+// 3. 404
+http_response_code(404);
+echo "404 - Not Found";
+

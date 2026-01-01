@@ -1,0 +1,24 @@
+# UTF-8
+AddDefaultCharset UTF-8
+
+# Заборона перегляду директорій
+Options -Indexes
+
+# Захист config.php (Apache 2.4+)
+<Files "config.php">
+    Require all denied
+</Files>
+
+# Захист прихованих файлів (.git, .env тощо)
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Сторінка 404
+ErrorDocument 404 /404.php
+
+# PHP налаштування (опціонально)
+<IfModule mod_php.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+</IfModule>
