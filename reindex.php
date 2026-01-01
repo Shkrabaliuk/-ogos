@@ -1,9 +1,10 @@
 <?php
 /**
  * Індексація всіх постів для пошуку
- * Запустіть цей скрипт після імпорту database_search.sql
+ * Запустіть цей скрипт після імпорту database.sql
  */
 
+require_once __DIR__ . '/config/autoload.php';
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/SearchService.php';
 

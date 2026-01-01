@@ -1,6 +1,7 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/../includes/SearchService.php';
+require_once __DIR__ . '/config/autoload.php';
+require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/SearchService.php';
 
 $searchService = new SearchService($pdo);
 
