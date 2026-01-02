@@ -65,7 +65,7 @@ class SearchService
         $finder = new Finder($this->storage, $this->stemmer);
         
         // Шаблон підсвітки (передамо його і в finder, і в snippetBuilder)
-        $highlightTemplate = '<mark style="background: #fff3cd; padding: 2px;">%s</mark>';
+        $highlightTemplate = '<mark>%s</mark>';
         $finder->setHighlightTemplate($highlightTemplate);
         
         $snippetBuilder = new SnippetBuilder($this->stemmer);

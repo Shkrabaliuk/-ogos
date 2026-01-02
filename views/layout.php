@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle ?? '/\ogos') ?></title>
     
+    <!-- RSS Feed -->
+    <link rel="alternate" type="application/rss+xml" title="<?= htmlspecialchars($pageTitle ?? '/\ogos') ?> RSS Feed" href="/rss.php">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     
     <!-- Tilda Sans Font -->
@@ -12,13 +15,16 @@
     
     <link rel="stylesheet" href="/assets/css/style.css">
     
-    <!-- Fotorama gallery -->
-    <link rel="stylesheet" href="/assets/libs/fotorama/fotorama.css">
-    
-    <!-- FontAwesome icons -->
-    <link rel="stylesheet" href="/assets/libs/fontawesome/css/all.min.css">
+    <!-- FontAwesome icons (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
 </head>
 <body>
+
+<?php
+// Підключаємо авторизацію
+require_once __DIR__ . '/../includes/auth.php';
+$isAdmin = isLoggedIn();
+?>
 
 <div class="container">
     <header>
@@ -47,7 +53,29 @@
     </main>
 
     <footer>
-        Powered by /\ogos — <?= date('Y') ?>
+        <div class="flex-between">
+            <div>
+                Powered by /\ogos — <?= date('Y') ?>
+            </div>
+            <div class="flex-center">
+                <a href="/rss.php" title="RSS Feed" class="inline-flex-link">
+                    <i class="fas fa-rss"></i>
+                    RSS
+                </a>
+                <?php if ($isAdmin): ?>
+                    <a href="/admin/settings.php" title="Налаштування" class="auth-icon">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                    <a href="/logout.php" title="Вийти" class="auth-icon logout-link">
+                        <i class="fas fa-unlock"></i>
+                    </a>
+                <?php else: ?>
+                    <a href="/login.php" title="Адміністрування" class="auth-icon">
+                        <i class="fas fa-lock"></i>
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>
     </footer>
 </div>
 

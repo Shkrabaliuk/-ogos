@@ -55,7 +55,7 @@ $pageTitle = $post ? "Редагувати: {$post['title']}" : "Новий по
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <link rel="stylesheet" href="/assets/fonts/tildasans.css">
     <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/libs/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <style>
         .form-control {
             margin-bottom: 20px;
@@ -92,23 +92,44 @@ $pageTitle = $post ? "Редагувати: {$post['title']}" : "Новий по
             color: #fff;
             text-decoration: none;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
+            font-family: inherit;
         }
         
         .button:hover {
             background: #d04848;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(235, 87, 87, 0.3);
+        }
+        
+        .button:active {
+            transform: translateY(0);
         }
         
         .button-secondary {
-            background: #999;
+            background: #6c757d;
         }
         
         .button-secondary:hover {
-            background: #777;
+            background: #5a6268;
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+        }
+        
+        .button i {
+            margin-right: 6px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--thinRuleColor);
         }
         
         .checkbox-wrapper {
@@ -129,10 +150,15 @@ $pageTitle = $post ? "Редагувати: {$post['title']}" : "Новий по
 
 <div class="container">
     <div class="admin-header">
-        <h1 style="margin: 0;"><?= $post ? 'Редагувати пост' : 'Новий пост' ?></h1>
-        <a href="/" class="button button-secondary">
-            <i class="fas fa-arrow-left"></i> Назад до блогу
-        </a>
+        <h1 class="m-0"><?= $post ? 'Редагувати пост' : 'Новий пост' ?></h1>
+        <div class="flex-actions">
+            <a href="/admin/" class="button button-secondary">
+                <i class="fas fa-list"></i> Список постів
+            </a>
+            <a href="/" class="button button-secondary">
+                <i class="fas fa-home"></i> Блог
+            </a>
+        </div>
     </div>
     
     <form method="POST">
@@ -159,7 +185,7 @@ $pageTitle = $post ? "Редагувати: {$post['title']}" : "Новий по
                 pattern="[a-z0-9\-]+"
                 placeholder="example-post-url"
             >
-            <small style="color: #999;">Тільки латиниця, цифри та дефіси</small>
+            <small class="text-muted">Тільки латиниця, цифри та дефіси</small>
         </div>
         
         <div class="form-control">
@@ -169,23 +195,13 @@ $pageTitle = $post ? "Редагувати: {$post['title']}" : "Новий по
                 name="content" 
                 required
             ><?= htmlspecialchars($post['content'] ?? '') ?></textarea>
-            <small style="color: #999; margin-top: 8px; display: block;">
+            <small class="hint-text">
                 <strong>Синтаксис Neasden:</strong><br>
                 # Заголовок, ## Підзаголовок<br>
                 - список • **жирний** • //курсив//<br>
                 Блок коду: пусті рядки до/після, відступ 4 пробіли<br>
                 &gt; Цитата (на початку рядка)
             </small>
-        </div>
-        
-        <div class="form-control">
-            <label class="form-label" for="type">Тип поста</label>
-            <select id="type" name="type">
-                <option value="text" <?= ($post['type'] ?? 'text') === 'text' ? 'selected' : '' ?>>Text</option>
-                <option value="image" <?= ($post['type'] ?? '') === 'image' ? 'selected' : '' ?>>Image</option>
-                <option value="link" <?= ($post['type'] ?? '') === 'link' ? 'selected' : '' ?>>Link</option>
-                <option value="quote" <?= ($post['type'] ?? '') === 'quote' ? 'selected' : '' ?>>Quote</option>
-            </select>
         </div>
         
         <div class="form-control">
@@ -199,14 +215,15 @@ $pageTitle = $post ? "Редагувати: {$post['title']}" : "Новий по
             </label>
         </div>
         
-        <div clasi class="fas fa-save"></i>
+        <div class="form-actions">
+            <button type="submit" class="button">
+                <i class="fas fa-save"></i>
                 <?= $post ? 'Зберегти зміни' : 'Створити пост' ?>
             </button>
             
             <?php if ($post): ?>
-                <a href="/<?= htmlspecialchars($post['slug']) ?>" class="button button-secondary" style="margin-left: 10px;">
-                    <i class="fas fa-eye"></i>f ($post): ?>
-                <a href="/<?= htmlspecialchars($post['slug']) ?>" class="button button-secondary" style="margin-left: 10px;">
+                <a href="/<?= htmlspecialchars($post['slug']) ?>" class="button button-secondary" target="_blank">
+                    <i class="fas fa-eye"></i>
                     Переглянути
                 </a>
             <?php endif; ?>

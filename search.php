@@ -29,7 +29,7 @@ $pageTitle = $q ? "Пошук: {$q}" : "Пошук";
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <link rel="stylesheet" href="/assets/fonts/tildasans.css">
     <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/libs/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
     
     <style>
         .search-form {
@@ -123,7 +123,7 @@ $pageTitle = $q ? "Пошук: {$q}" : "Пошук";
     </header>
 
     <main>
-        <h1 style="margin-bottom: 24px;">Пошук</h1>
+        <h1 class="mb-24">Пошук</h1>
         
         <form method="GET" action="/search.php" class="search-form">
             <input 
@@ -138,7 +138,7 @@ $pageTitle = $q ? "Пошук: {$q}" : "Пошук";
         </form>
         
         <?php if (isset($error)): ?>
-            <div style="padding: 20px; background: #ffebee; border-radius: 6px; color: #c62828; margin-bottom: 30px;">
+            <div class="error-box">
                 <i class="fas fa-exclamation-triangle"></i>
                 <?= htmlspecialchars($error) ?>
             </div>
@@ -177,8 +177,8 @@ $pageTitle = $q ? "Пошук: {$q}" : "Пошук";
                     <div><i class="far fa-frown"></i></div>
                     <h2>Нічого не знайдено</h2>
                     <p>За запитом «<?= htmlspecialchars($q) ?>» результатів немає.</p>
-                    <p style="margin-top: 20px;">
-                        <a href="/" style="color: var(--hoverColor);">← Повернутися на головну</a>
+                    <p class="mt-20">
+                        <a href="/" class="back-home-link">← Повернутися на головну</a>
                     </p>
                 </div>
             <?php endif; ?>

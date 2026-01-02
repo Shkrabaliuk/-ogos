@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS `tags`;
 DROP TABLE IF EXISTS `comments`;
 DROP TABLE IF EXISTS `posts`;
 DROP TABLE IF EXISTS `settings`;
+DROP TABLE IF EXISTS `admin_users`;
 -- Видаляємо таблиці Rose, щоб бібліотека створила їх сама
 DROP TABLE IF EXISTS `rose_toc`;
 DROP TABLE IF EXISTS `rose_content`;
@@ -34,6 +35,19 @@ CREATE TABLE `settings` (
 INSERT INTO `settings` (`key`, `value`) VALUES
 ('blog_title', '/\\ogos'),
 ('posts_per_page', '5');
+
+CREATE TABLE `admin_users` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB;
+
+-- Пароль: admin (змініть після першого входу!)
+INSERT INTO `admin_users` (`username`, `password_hash`) VALUES
+('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
 
 CREATE TABLE `posts` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

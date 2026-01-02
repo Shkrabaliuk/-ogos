@@ -18,8 +18,24 @@ $path = trim($path, '/');
 
 // 1. ГОЛОВНА СТОРІНКА (СТРІЧКА)
 if ($path === '' || $path === 'index.php') {
-    // Отримуємо всі опубліковані пости
-    $stmt = $pdo->query("SELECT * FROM posts WHERE is_published = 1 ORDER BY created_at DESC");
+    // Pagination параметри
+    $postsPerPage = 10;
+    $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+    $offset = ($page - 1) * $postsPerPage;
+    
+    // Підраховуємо загальну кількість постів
+    $totalStmt = $pdo->query("SELECT COUNT(*) FROM posts WHERE is_published = 1");
+    $totalPosts = $totalStmt->fetchColumn();
+    $totalPages = ceil($totalPosts / $postsPerPage);
+    
+    // Отримуємо пости для поточної сторінки
+    $stmt = $pdo->prepare("
+        SELECT * FROM posts 
+        WHERE is_published = 1 
+        ORDER BY created_at DESC 
+        LIMIT ? OFFSET ?
+    ");
+    $stmt->execute([$postsPerPage, $offset]);
     $posts = $stmt->fetchAll();
 
     $pageTitle = "/\ogos";
