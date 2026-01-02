@@ -138,8 +138,11 @@ if (empty($posts)): ?>
                     <nav>
                         <?php if ($isAdmin): ?>
                         <div class="band-item">
-                        <a href="/<?= htmlspecialchars($post['slug']) ?>#edit" class="e2-button">
-                            <span class="e2-svgi">✎</span> Редагувати
+                            <a href="/<?= htmlspecialchars($post['slug']) ?>#edit" class="e2-button">
+                                <span class="e2-svgi">✎</span> Редагувати
+                            </a>
+                        </div>
+                        <?php endif; ?>
                         
                         <div class="band-item">
                             <span title="<?= date('d.m.Y H:i', strtotime($post['created_at'])) ?>">
