@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="/assets/fonts/tildasans.css">
     
     <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/modal.css">
     
     <!-- FontAwesome icons (CDN) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -70,13 +71,59 @@ $isAdmin = isLoggedIn();
                         <i class="fas fa-unlock"></i>
                     </a>
                 <?php else: ?>
-                    <a href="/login.php" title="Адміністрування" class="auth-icon">
+                    <a href="#" id="loginToggle" title="Адміністрування" class="auth-icon">
                         <i class="fas fa-lock"></i>
                     </a>
                 <?php endif; ?>
             </div>
         </div>
     </footer>
+</div>
+
+<!-- Модальне вікно входу -->
+<div id="loginModal" class="modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+        <button class="modal-close" id="closeLoginModal">
+            <i class="fas fa-times"></i>
+        </button>
+        <h2 class="modal-title">/\ogos</h2>
+        <p class="modal-subtitle">Адміністрування</p>
+        
+        <div id="loginError" class="modal-error" style="display: none;">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="loginErrorText"></span>
+        </div>
+        
+        <form id="loginForm" class="modal-form">
+            <div class="form-group">
+                <label for="modal-username">Ім'я користувача</label>
+                <input 
+                    type="text" 
+                    id="modal-username" 
+                    name="username" 
+                    required 
+                    autocomplete="username"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="modal-password">Пароль</label>
+                <input 
+                    type="password" 
+                    id="modal-password" 
+                    name="password" 
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+            
+            <button type="submit" class="btn-login">
+                <i class="fas fa-unlock"></i>
+                Увійти
+            </button>
+        </form>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -95,8 +142,86 @@ $isAdmin = isLoggedIn();
     // Автоматичне підсвічування всіх блоків коду
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('pre code').forEach(function(block) {
-            hljs.highlightElement(block);
+            if (typeof hljs !== 'undefined' && hljs.highlightBlock) {
+                hljs.highlightBlock(block);
+            }
         });
+    });
+</script>
+
+<!-- Login Modal -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginToggle = document.getElementById('loginToggle');
+        const loginModal = document.getElementById('loginModal');
+        const closeModal = document.getElementById('closeLoginModal');
+        const overlay = loginModal?.querySelector('.modal-overlay');
+        const loginForm = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+        const loginErrorText = document.getElementById('loginErrorText');
+        
+        console.log('Login toggle element:', loginToggle);
+        console.log('Login modal element:', loginModal);
+        
+        if (loginToggle) {
+            loginToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Login toggle clicked!');
+                loginModal.classList.add('active');
+                setTimeout(() => document.getElementById('modal-username').focus(), 300);
+            });
+        } else {
+            console.log('loginToggle not found!');
+        }
+        
+        if (closeModal) {
+            closeModal.addEventListener('click', function() {
+                loginModal.classList.remove('active');
+                loginError.style.display = 'none';
+            });
+        }
+        
+        if (overlay) {
+            overlay.addEventListener('click', function() {
+                loginModal.classList.remove('active');
+                loginError.style.display = 'none';
+            });
+        }
+        
+        // Закрити при Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && loginModal?.classList.contains('active')) {
+                loginModal.classList.remove('active');
+                loginError.style.display = 'none';
+            }
+        });
+        
+        // Обробка форми входу
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(loginForm);
+                
+                fetch('/login.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        loginErrorText.textContent = data.error || 'Помилка входу';
+                        loginError.style.display = 'flex';
+                    }
+                })
+                .catch(error => {
+                    loginErrorText.textContent = 'Помилка з\'єднання';
+                    loginError.style.display = 'flex';
+                });
+            });
+        }
     });
 </script>
 
@@ -107,26 +232,28 @@ $isAdmin = isLoggedIn();
         const search = document.getElementById('headerSearch');
         const input = document.getElementById('searchInput');
         
-        toggle.addEventListener('click', function() {
-            search.classList.toggle('active');
-            if (search.classList.contains('active')) {
-                setTimeout(() => input.focus(), 300);
-            }
-        });
-        
-        // Закрити при кліку поза пошуком
-        document.addEventListener('click', function(e) {
-            if (!toggle.contains(e.target) && !search.contains(e.target)) {
-                search.classList.remove('active');
-            }
-        });
-        
-        // Закрити при натисканні Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                search.classList.remove('active');
-            }
-        });
+        if (toggle && search && input) {
+            toggle.addEventListener('click', function() {
+                search.classList.toggle('active');
+                if (search.classList.contains('active')) {
+                    setTimeout(() => input.focus(), 300);
+                }
+            });
+            
+            // Закрити при кліку поза пошуком
+            document.addEventListener('click', function(e) {
+                if (!toggle.contains(e.target) && !search.contains(e.target)) {
+                    search.classList.remove('active');
+                }
+            });
+            
+            // Закрити при натисканні Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    search.classList.remove('active');
+                }
+            });
+        }
     });
 </script>
 
