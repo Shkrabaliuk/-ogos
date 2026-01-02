@@ -66,7 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Форма налаштувань блогу
             try {
                 $blogTitle = trim($_POST['blog_title'] ?? '');
+                $blogDescription = trim($_POST['blog_description'] ?? '');
                 $postsPerPage = (int)($_POST['posts_per_page'] ?? 5);
+                $googleAnalyticsId = trim($_POST['google_analytics_id'] ?? '');
                 
                 if (empty($blogTitle)) {
                     $error = 'Назва блогу не може бути порожньою';
@@ -75,10 +77,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $pdo->prepare("INSERT INTO settings (`key`, `value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = ?");
                     
                     $stmt->execute(['blog_title', $blogTitle, $blogTitle]);
+                    $stmt->execute(['blog_description', $blogDescription, $blogDescription]);
                     $stmt->execute(['posts_per_page', $postsPerPage, $postsPerPage]);
+                    $stmt->execute(['google_analytics_id', $googleAnalyticsId, $googleAnalyticsId]);
                     
                     $settings['blog_title'] = $blogTitle;
+                    $settings['blog_description'] = $blogDescription;
                     $settings['posts_per_page'] = $postsPerPage;
+                    $settings['google_analytics_id'] = $googleAnalyticsId;
                     
                     $success = 'Налаштування збережено';
                 }
@@ -128,6 +134,18 @@ ob_start();
         </div>
         
         <div class="form-group">
+            <label for="blog_description">Опис блогу</label>
+            <textarea 
+                id="blog_description" 
+                name="blog_description" 
+                rows="3"
+                class="form-textarea"
+                maxlength="300"
+            ><?= htmlspecialchars($settings['blog_description'] ?? '') ?></textarea>
+            <small>Опис для meta тегів та RSS feed (максимум 300 символів)</small>
+        </div>
+        
+        <div class="form-group">
             <label for="posts_per_page">Постів на сторінку</label>
             <input 
                 type="number" 
@@ -139,6 +157,19 @@ ob_start();
                 required
             >
             <small>Кількість постів на одній сторінці</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="google_analytics_id">Google Analytics ID</label>
+            <input 
+                type="text" 
+                id="google_analytics_id" 
+                name="google_analytics_id" 
+                value="<?= htmlspecialchars($settings['google_analytics_id'] ?? '') ?>"
+                placeholder="G-XXXXXXXXXX або UA-XXXXXXXXX-X"
+                pattern="^(G-[A-Z0-9]+|UA-[0-9]+-[0-9]+)?$"
+            >
+            <small>Measurement ID з Google Analytics 4 (опціонально)</small>
         </div>
         
         <div class="form-actions">
@@ -206,6 +237,101 @@ ob_start();
             <li><strong>PHP:</strong> <?= PHP_VERSION ?></li>
             <li><strong>Адміністратор:</strong> <?= htmlspecialchars($_SESSION['admin_username']) ?></li>
         </ul>
+    </div>
+    
+    <div class="settings-section">
+        <h2>Резервне копіювання</h2>
+        <p style="margin-bottom: 16px; color: #999;">
+            Створіть backup бази даних у форматі SQL. Файл буде автоматично завантажено на ваш комп'ютер.
+        </p>
+        <a href="/admin/backup.php" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fas fa-download"></i>
+            Завантажити backup БД
+        </a>
+        <p style="margin-top: 12px; font-size: 13px; color: #999;">
+            <i class="fas fa-info-circle"></i>
+            Backup включає всі таблиці, дані та структуру бази даних
+        </p>
+    </div>
+    
+    <div class="settings-section">
+        <h2>Логи помилок</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <p style="margin: 0; color: #999;">
+                Останні 100 записів з PHP error log
+            </p>
+            <a href="/admin/clear_logs.php" class="btn btn-ghost" onclick="return confirm('Очистити всі логи?')">
+                <i class="fas fa-trash"></i>
+                Очистити
+            </a>
+        </div>
+        
+        <?php
+        $errorLog = ini_get('error_log');
+        if (empty($errorLog) || $errorLog === 'syslog') {
+            // Шукаємо стандартні локації
+            $possiblePaths = [
+                __DIR__ . '/../error_log',
+                __DIR__ . '/../php_errors.log',
+                $_SERVER['DOCUMENT_ROOT'] . '/error_log',
+                '/var/log/php_errors.log'
+            ];
+            
+            foreach ($possiblePaths as $path) {
+                if (file_exists($path)) {
+                    $errorLog = $path;
+                    break;
+                }
+            }
+        }
+        
+        if ($errorLog && file_exists($errorLog) && is_readable($errorLog)):
+            $logs = file($errorLog, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            $logs = array_reverse(array_slice($logs, -100));
+        ?>
+            <div class="log-container">
+                <?php if (empty($logs)): ?>
+                    <p style="color: #999; text-align: center; padding: 24px;">
+                        <i class="fas fa-check-circle"></i>
+                        Помилок не знайдено
+                    </p>
+                <?php else: ?>
+                    <?php foreach ($logs as $line): ?>
+                        <div class="log-line">
+                            <?= htmlspecialchars($line) ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        <?php else: ?>
+            <div class="log-container">
+                <p style="color: #999; text-align: center; padding: 24px;">
+                    <i class="fas fa-info-circle"></i>
+                    Файл логів не знайдено або недоступний
+                </p>
+            </div>
+        <?php endif; ?>
+    </div>
+    
+    <div class="settings-section">
+        <h2>Утиліти</h2>
+        <p style="margin-bottom: 16px; color: #999;">
+            Швидкий доступ до системних інструментів
+        </p>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="/reindex.php" target="_blank" class="btn btn-secondary">
+                <i class="fas fa-sync"></i>
+                Реіндексація пошуку
+            </a>
+            <a href="/sitemap.php" target="_blank" class="btn btn-secondary">
+                <i class="fas fa-sitemap"></i>
+                Генерація Sitemap
+            </a>
+            <a href="/rss.php" target="_blank" class="btn btn-secondary">
+                <i class="fas fa-rss"></i>
+                Переглянути RSS
+            </a>
+        </div>
     </div>
 </div>
 

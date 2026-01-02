@@ -6,6 +6,9 @@ assets/cache/
 # Завантажені файли
 uploads/
 
+# Резервні копії БД
+backups/
+
 # IDE
 .vscode/
 .idea/
