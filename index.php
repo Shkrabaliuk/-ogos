@@ -18,8 +18,11 @@ $path = trim($path, '/');
 
 // 1. ГОЛОВНА СТОРІНКА (СТРІЧКА)
 if ($path === '' || $path === 'index.php') {
-    // Pagination параметри
-    $postsPerPage = 10;
+    // Pagination параметри - завантажуємо з налаштувань
+    $stmt = $pdo->query("SELECT value FROM settings WHERE `key` = 'posts_per_page'");
+    $postsPerPage = $stmt ? (int)$stmt->fetchColumn() : 10;
+    if ($postsPerPage < 1) $postsPerPage = 10;
+    
     $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
     $offset = ($page - 1) * $postsPerPage;
     

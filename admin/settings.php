@@ -319,6 +319,10 @@ ob_start();
             Швидкий доступ до системних інструментів
         </p>
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="/init_search_tables.php" target="_blank" class="btn btn-secondary">
+                <i class="fas fa-database"></i>
+                Створити таблиці пошуку
+            </a>
             <a href="/reindex.php" target="_blank" class="btn btn-secondary">
                 <i class="fas fa-sync"></i>
                 Реіндексація пошуку
