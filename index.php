@@ -52,16 +52,21 @@ $stmt->execute([$path]);
 $post = $stmt->fetch();
 
 if ($post) {
-    // Знайшли пост, тепер завантажуємо теги
-    $stmt = $pdo->prepare("
-        SELECT t.* 
-        FROM tags t
-        JOIN post_tags pt ON t.id = pt.tag_id
-        WHERE pt.post_id = ?
-        ORDER BY t.name
-    ");
-    $stmt->execute([$post['id']]);
-    $tags = $stmt->fetchAll();
+    // Знайшли пост, тепер завантажуємо теги (якщо таблиця існує)
+    $tags = [];
+    try {
+        $stmt = $pdo->prepare("
+            SELECT t.* 
+            FROM tags t
+            JOIN post_tags pt ON t.id = pt.tag_id
+            WHERE pt.post_id = ?
+            ORDER BY t.name
+        ");
+        $stmt->execute([$post['id']]);
+        $tags = $stmt->fetchAll();
+    } catch (PDOException $e) {
+        // Таблиця tags не існує - ігноруємо
+    }
     
     // Завантажуємо коментарі
     $stmt = $pdo->prepare("

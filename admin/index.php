@@ -105,17 +105,17 @@ $pageTitle = "Адмін-панель";
     <div class="admin-header">
         <h1 style="margin: 0;">Адмін-панель — Пости</h1>
         <div style="display: flex; gap: 10px;">
-            <a href="/admin/editor.php" class="button">
-                <i class="fas fa-plus"></i> Новий пост
-            </a>
-            <a href="/" class="button" style="background: #999;">
+            <a href="/" class="button">
                 <i class="fas fa-home"></i> Блог
+            </a>
+            <a href="/admin/settings.php" class="button" style="background: #999;">
+                <i class="fas fa-cog"></i> Налаштування
             </a>
         </div>
     </div>
     
     <?php if (empty($posts)): ?>
-        <p style="color: #999;">Постів ще немає. <a href="/admin/editor.php">Створити перший?</a></p>
+        <p style="color: #999;">Постів ще немає. <a href="/">Перейти на головну</a> щоб створити перший.</p>
     <?php else: ?>
         <table class="posts-table">
             <thead>
@@ -150,7 +150,7 @@ $pageTitle = "Адмін-панель";
                             <a href="/<?= htmlspecialchars($post['slug']) ?>" class="action-link" target="_blank">
                                 <i class="fas fa-eye"></i> Переглянути
                             </a>
-                            <a href="/admin/editor.php?id=<?= $post['id'] ?>" class="action-link">
+                            <a href="/<?= htmlspecialchars($post['slug']) ?>#edit" class="action-link">
                                 <i class="fas fa-edit"></i> Редагувати
                             </a>
                         </td>

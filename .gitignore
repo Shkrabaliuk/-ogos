@@ -1,0 +1,28 @@
+# Кеш файли
+assets/cache/
+*.min.css
+*.min.js
+
+# Завантажені файли
+uploads/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Config (з прикладами)
+config/db.php
+
+# Logs
+*.log
+error_log
+
+# Composer
+/vendor/
+composer.lock

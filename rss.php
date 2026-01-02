@@ -41,16 +41,21 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     
     <?php foreach ($posts as $post): ?>
     <?php
-        // Отримуємо теги для поста
-        $stmt = $pdo->prepare("
-            SELECT t.name 
-            FROM tags t
-            JOIN post_tags pt ON t.id = pt.tag_id
-            WHERE pt.post_id = ?
-            ORDER BY t.name
-        ");
-        $stmt->execute([$post['id']]);
-        $tags = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        // Отримуємо теги для поста (якщо таблиця існує)
+        $tags = [];
+        try {
+            $stmt = $pdo->prepare("
+                SELECT t.name 
+                FROM tags t
+                JOIN post_tags pt ON t.id = pt.tag_id
+                WHERE pt.post_id = ?
+                ORDER BY t.name
+            ");
+            $stmt->execute([$post['id']]);
+            $tags = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        } catch (PDOException $e) {
+            // Таблиця tags не існує - ігноруємо
+        }
         
         // Парсимо контент
         $fullContent = $parser->parse($post['content']);

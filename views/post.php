@@ -8,7 +8,8 @@ if (empty($post)): ?>
     <p class="empty-message">Пост не знайдено</p>
 <?php else: ?>
     
-    <article class="post">
+    <!-- Режим перегляду -->
+    <article class="post" id="postView">
         <div class="post-meta">
             <?= date('d.m.Y', strtotime($post['created_at'])) ?>
             
@@ -18,9 +19,9 @@ if (empty($post)): ?>
             
             <?php if ($isAdmin): ?>
                 <span class="admin-controls">
-                    <a href="/admin/editor.php?id=<?= $post['id'] ?>" class="edit-link" title="Редагувати">
+                    <button onclick="toggleEditMode()" class="edit-link" title="Редагувати">
                         <i class="fas fa-pen"></i>
-                    </a>
+                    </button>
                 </span>
             <?php endif; ?>
         </div>
@@ -52,6 +53,102 @@ if (empty($post)): ?>
             </div>
         <?php endif; ?>
     </article>
+    
+    <!-- Режим редагування (прихований за замовчуванням) -->
+    <?php if ($isAdmin): ?>
+    <div id="postEdit" style="display: none;" class="post">
+        <form method="POST" action="/admin/save_post.php">
+            <?= csrfField() ?>
+            <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
+            <input type="hidden" name="redirect_url" value="/<?= htmlspecialchars($post['slug']) ?>">
+            
+            <div class="form-group">
+                <label for="edit_title">Заголовок</label>
+                <input 
+                    type="text" 
+                    id="edit_title" 
+                    name="title" 
+                    value="<?= htmlspecialchars($post['title']) ?>"
+                    required
+                    class="form-input"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="edit_slug">URL (slug)</label>
+                <input 
+                    type="text" 
+                    id="edit_slug" 
+                    name="slug" 
+                    value="<?= htmlspecialchars($post['slug']) ?>"
+                    required
+                    pattern="[a-z0-9\-]+"
+                    class="form-input"
+                >
+                <small class="hint-text">Тільки латиниця, цифри та дефіси</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="edit_content">Контент (Neasden розмітка)</label>
+                
+                <!-- Drag & Drop зона для картинок -->
+                <div id="imageDropzone" class="image-dropzone">
+                    <div class="dropzone-icon">📷</div>
+                    <div class="dropzone-text">
+                        <strong>Перетягніть картинки сюди</strong> або клікніть для вибору
+                    </div>
+                    <div class="dropzone-hint">
+                        JPG, PNG, GIF, WebP • Максимум 10MB • Ctrl+V для вставки
+                    </div>
+                    <div class="upload-progress">Завантаження...</div>
+                </div>
+                
+                <textarea 
+                    id="content" 
+                    name="content" 
+                    required
+                    rows="20"
+                    class="form-textarea"
+                ><?= htmlspecialchars($post['content']) ?></textarea>
+                <small class="hint-text">
+                    <strong>Синтаксис:</strong> # Заголовок • **жирний** • //курсив// • - список • відступ 4 пробіли для коду
+                </small>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Зберегти
+                </button>
+                <button type="button" onclick="toggleEditMode()" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Скасувати
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        function toggleEditMode() {
+            const viewMode = document.getElementById('postView');
+            const editMode = document.getElementById('postEdit');
+            
+            if (viewMode.style.display === 'none') {
+                viewMode.style.display = 'block';
+                editMode.style.display = 'none';
+                window.location.hash = '';
+            } else {
+                viewMode.style.display = 'none';
+                editMode.style.display = 'block';
+                document.getElementById('edit_title').focus();
+                window.location.hash = 'edit';
+            }
+        }
+        
+        // Автоматично відкрити редагування, якщо в URL є #edit
+        if (window.location.hash === '#edit') {
+            toggleEditMode();
+        }
+    </script>
+    <?php endif; ?>
     
     <?php if (!empty($comments)): ?>
         <section class="comments">

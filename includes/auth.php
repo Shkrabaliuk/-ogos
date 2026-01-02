@@ -81,6 +81,37 @@ function attemptLogin($pdo, $username, $password) {
 }
 
 /**
+ * Спрощена авторизація тільки за паролем (для одного адміна)
+ * @param PDO $pdo
+ * @param string $password
+ * @return array ['success' => bool, 'error' => string|null]
+ */
+function attemptLoginWithPassword($pdo, $password) {
+    try {
+        // Беремо першого (і єдиного) адміна
+        $stmt = $pdo->query("SELECT id, username, password_hash FROM admin_users LIMIT 1");
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$user) {
+            return ['success' => false, 'error' => 'Адміністратор не знайдений'];
+        }
+        
+        if (!password_verify($password, $user['password_hash'])) {
+            return ['success' => false, 'error' => 'Невірний пароль'];
+        }
+        
+        // Успішний вхід
+        setAuthSession($user['id'], $user['username']);
+        
+        return ['success' => true, 'error' => null];
+        
+    } catch (PDOException $e) {
+        error_log("Login error: " . $e->getMessage());
+        return ['success' => false, 'error' => 'Помилка авторизації'];
+    }
+}
+
+/**
  * Редірект на login, якщо не авторизований
  */
 function requireAuth() {

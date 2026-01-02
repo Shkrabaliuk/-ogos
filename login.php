@@ -1,6 +1,6 @@
 <?php
 /**
- * API endpoint для входу адміністратора
+ * API endpoint для входу адміністратора (тільки пароль)
  */
 
 require_once __DIR__ . '/config/db.php';
@@ -10,18 +10,18 @@ require_once __DIR__ . '/includes/auth.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
     
-    $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
     
-    if (empty($username) || empty($password)) {
+    if (empty($password)) {
         echo json_encode([
             'success' => false,
-            'error' => 'Заповніть всі поля'
+            'error' => 'Введіть пароль'
         ]);
         exit;
     }
     
-    $result = attemptLogin($pdo, $username, $password);
+    // Перевіряємо пароль без логіну
+    $result = attemptLoginWithPassword($pdo, $password);
     echo json_encode($result);
     exit;
 }
