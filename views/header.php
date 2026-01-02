@@ -64,6 +64,11 @@ $blogTitle = $blogSettings['blog_title'] ?? '/\ogos';
         </div>
         
         <div class="header-search-container">
+            <?php if ($isAdmin): ?>
+            <button type="button" class="search-toggle" onclick="toggleNewPostForm()" title="Новий пост">
+                <i class="fas fa-plus"></i>
+            </button>
+            <?php endif; ?>
             <button type="button" class="search-toggle" id="searchToggle">
                 <i class="fas fa-search"></i>
             </button>

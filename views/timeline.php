@@ -20,16 +20,8 @@ if (empty($posts)): ?>
         </div>
     <?php endif; ?>
     
-    <!-- Кнопка "Новий пост" для адмінів -->
+    <!-- Форма створення нового посту -->
     <?php if ($isAdmin): ?>
-        <div class="admin-actions mb-40 text-center">
-            <button onclick="toggleNewPostForm()" class="btn btn-primary">
-                <i class="fas fa-plus"></i>
-                Новий пост
-            </button>
-        </div>
-        
-        <!-- Форма створення нового посту -->
         <div id="newPostForm" style="display: none;" class="post">
             <h2>Новий пост</h2>
             <form method="POST" action="/admin/save_post.php">
