@@ -1,115 +1,59 @@
-# /\ogos — Мінімалістичний блог
+# Logos CMS
 
-## Встановлення
+A minimalist, high-performance PHP blog engine styled after Aegea.
+Designed for simplicity ("User Friendly") and architectural purity ("Clean Code").
 
-1. Імпортуйте `database.sql` в MariaDB/MySQL
-2. Налаштуйте `config/db.php`
-3. Відкрийте у браузері
+## ✨ Features
 
-**Пароль адміна:** `sex` (без логіна, тільки пароль)
+-   **Zero Configuration**: Open the site, filling the installer form, and you are ready.
+-   **Modern Core**: PHP 8.0+, Composer, PSR-4 Autoloading.
+-   **MVC Architecture**: Strict separation of Controllers, Services, and Views.
+-   **Aegea Design**: Minimalist visual style with a focus on typography.
+-   **Markdown Native**: All posts are stored and rendered using CommonMark.
+-   **Secure**: PDO Singleton, Prepared Statements, XSS protection.
 
-## Що працює
+## 🚀 Installation
 
-✅ Авторизація через модальне вікно (password-only)  
-✅ Inline редагування постів (клік на пост → #edit)  
-✅ Inline створення нових постів (кнопка на головній)  
-✅ Уніфіковані стилі кнопок/форм (690 рядків CSS)  
-✅ Пошук (Rose Search)  
-✅ RSS feed  
-✅ Коментарі з CSRF захистом
+1.  **Deploy**:
+    Copy all files to your web server root.
 
-## Структура
+2.  **Dependencies**:
+    Run in your terminal:
+    ```bash
+    composer install
+    ```
 
+3.  **Install**:
+    Open your website in a browser (e.g., `http://localhost`).
+    You will be automatically redirected to the **Installer**.
+    
+    *Enter your database credentials and create an admin account.*
+
+## 📂 Project Structure
+
+```text
+.
+├── assets/                  # Public assets (CSS, JS, Fonts)
+├── src/                     # Application Core (Classes)
+│   ├── Config/              # Database Singleton
+│   ├── Controllers/         # HTTP Logic (Home, Post)
+│   ├── Services/            # Helpers (Render, Auth)
+│   └── admin/               # Legacy Admin files (Refactoring in progress)
+├── storage/                 # Data (SQL dumps, Uploads)
+├── templates/               # HTML Views
+├── vendor/                  # Composer Dependencies
+├── index.php                # Main Router (Bramus)
+├── install.php              # One-Click Installer
+└── composer.json            # Project definition
 ```
-├── index.php              # Роутер
-├── database.sql           # Повна схема БД
-├── config/
-│   ├── db.php
-│   └── autoload.php
-├── includes/
-│   ├── auth.php
-│   ├── SearchService.php
-│   └── ContentParser.php
-├── views/
-│   ├── header.php
-│   ├── footer.php
-│   ├── layout.php
-│   ├── timeline.php
-│   └── post.php
-├── admin/
-│   ├── index.php
-│   ├── save_post.php
-│   └── settings.php
-└── assets/
-    ├── css/style.css
-    └── libs/ (Rose, Neasden, Fotorama, Highlight.js)
-```
 
-## Технології
+## � Tech Stack
 
-PHP 8.x • MariaDB • Vanilla JS • Tilda Sans • Rose Search • Neasden Markup
+-   **Router**: `bramus/router`
+-   **Markdown**: `league/commonmark`
+-   **Frontend**: `simple.css` + Custom Overrides
+-   **Database**: MySQL / MariaDB
 
-## TODO
+## 👤 Admin Access
 
-### 🔥 Критичне (MVP)
-- [ ] Завантаження картинок (drag & drop в редактор)
-- [ ] Автоматична генерація thumbnails (WebP + оригінал)
-- [ ] Видалення постів (з підтвердженням)
-- [ ] UI для тегів (додавання/видалення в inline-редакторі)
-- [ ] Автоматична реіндексація пошуку при save/delete
-
-### 📝 Контент і редагування
-- [ ] Markdown preview в реальному часі
-- [ ] Автозбереження чернеток (localStorage)
-- [ ] Версіонування постів (history/revisions)
-- [ ] Планування публікацій (scheduled posts з cron)
-- [ ] Excerpt/summary для анонсів
-- [ ] Table of contents для довгих постів
-- [ ] Duplicate post (клонування)
-
-### 🎨 UI/UX
-- [ ] Dark/light theme switcher (не тільки prefers-color-scheme)
-- [ ] Фільтр постів по тегам (`/tag/{name}`)
-- [ ] Архів по датам (`/archive/2026/01`)
-- [ ] Related posts (схожі пости)
-- [ ] Пагінація коментарів (якщо >50)
-- [ ] Lazy loading картинок
-- [ ] Skeleton screens для загрузки
-
-### 💬 Коментарі
-- [ ] UI для відповідей на коментарі (threading)
-- [ ] Редагування/видалення власних коментарів
-- [ ] Модерація коментарів (approve/reject)
-- [ ] Email сповіщення про нові коментарі
-- [ ] Markdown підтримка в коментарях
-- [ ] Аватари через Gravatar
-
-### 📊 Аналітика і SEO
-- [ ] Статистика переглядів постів
-- [ ] Trending posts (найпопулярніші)
-- [ ] SEO метатеги (og:image, twitter:card)
-- [ ] Автогенерація XML sitemap
-- [ ] Structured data (JSON-LD)
-- [ ] Reading time estimation
-
-### ⚙️ Адмін і технічне
-- [ ] Web-based інсталятор (setup.php з перевіркою DB, створенням admin)
-- [ ] Backup бази даних (автоматичний)
-- [ ] Експорт/імпорт контенту (JSON)
-- [ ] Логування дій адміна
-- [ ] API endpoints (JSON для мобільних клієнтів)
-- [ ] PWA підтримка (manifest.json, service worker)
-- [ ] Rate limiting для пошуку/коментарів
-- [ ] CAPTCHA для коментарів (hCaptcha/Turnstile)
-- [ ] Health check endpoint (/health для моніторингу)
-- [ ] Database migrations система
-
-### 🧹 Оптимізація
-- [ ] Видалити зайві TildaSans варіанти (Black, ExtraBold)
-- [ ] Прибрати debug error_log() з auth.php
-- [ ] Caching strategy (Redis/Memcached або file cache)
-- [ ] Database indexes optimization
-- [ ] CSS/JS minification
-- [ ] CDN інтеграція для статики
-
-
+After installation, go to `/admin` to manage your posts and settings.

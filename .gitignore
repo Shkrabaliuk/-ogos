@@ -1,32 +1,30 @@
-# Кеш файли
-assets/cache/
-*.min.css
-*.min.js
+# Environment configuration
+.env
 
-# Завантажені файли
-uploads/
-
-# Резервні копії БД
-backups/
-
-# IDE
-.vscode/
-.idea/
-*.sublime-*
-
-# OS
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Config (з прикладами)
-config/db.php
-
-# Logs
-*.log
-error_log
+# Database config (if using .env, db.php is auto-generated)
+src/Config/db.php
 
 # Composer
 /vendor/
 composer.lock
--ogos.rar
+
+# Storage
+storage/uploads/*
+!storage/uploads/.gitkeep
+storage/backups/*
+!storage/backups/.gitkeep
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+error_log
+php_errors.log
