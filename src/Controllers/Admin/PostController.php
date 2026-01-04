@@ -11,8 +11,24 @@ class PostController
 
     public function __construct()
     {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         Auth::require();
         $this->pdo = Database::connect();
+    }
+
+    public function newPost()
+    {
+        // Load blog settings
+        $stmt = $this->pdo->query("SELECT `key`, `value` FROM settings");
+        $blogSettings = [];
+        while ($row = $stmt->fetch()) {
+            $blogSettings[$row['key']] = $row['value'];
+        }
+
+        $isAdmin = true;
+        require __DIR__ . '/../../../templates/admin_new_post.php';
     }
 
     public function save()
@@ -31,6 +47,7 @@ class PostController
         $title = trim($_POST['title'] ?? '');
         $slug = trim($_POST['slug'] ?? '');
         $content = $_POST['content'] ?? '';
+        $is_published = isset($_POST['is_published']) ? 1 : 0;
 
         // Validation
         if (empty($title) || empty($slug) || empty($content)) {
@@ -43,24 +60,27 @@ class PostController
         }
 
         try {
+            // Get admin user_id
+            $user_id = $_SESSION['admin_id'] ?? 1;
+
             if ($post_id) {
                 // Update existing post
                 $stmt = $this->pdo->prepare("
                     UPDATE posts 
-                    SET title = ?, slug = ?, content_raw = ?, is_published = 1
+                    SET title = ?, slug = ?, content_raw = ?, is_published = ?
                     WHERE id = ?
                 ");
-                $stmt->execute([$title, $slug, $content, $post_id]);
+                $stmt->execute([$title, $slug, $content, $is_published, $post_id]);
 
                 // Redirect to updated URL
                 header("Location: /$slug");
             } else {
                 // Create new post
                 $stmt = $this->pdo->prepare("
-                    INSERT INTO posts (title, slug, content_raw, is_published) 
-                    VALUES (?, ?, ?, 1)
+                    INSERT INTO posts (user_id, title, slug, content_raw, is_published) 
+                    VALUES (?, ?, ?, ?, ?)
                 ");
-                $stmt->execute([$title, $slug, $content]);
+                $stmt->execute([$user_id, $title, $slug, $content, $is_published]);
 
                 header("Location: /$slug");
             }

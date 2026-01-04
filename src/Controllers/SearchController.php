@@ -20,62 +20,45 @@ class SearchController
 
         if (!empty($q)) {
             try {
-                // Use MySQL FULLTEXT search if available
+                error_log("Search query: " . $q);
+
+                // Use LIKE search for better Cyrillic support
                 $stmt = $this->pdo->prepare("
                     SELECT 
                         id,
                         title,
                         slug,
                         SUBSTRING(content_raw, 1, 200) as snippet,
-                        created_at as date,
-                        MATCH(title, content_raw) AGAINST(? IN NATURAL LANGUAGE MODE) as relevance
+                        created_at as date
                     FROM posts 
                     WHERE is_published = 1 
-                    AND MATCH(title, content_raw) AGAINST(? IN NATURAL LANGUAGE MODE)
-                    ORDER BY relevance DESC, created_at DESC
+                    AND (title LIKE ? OR content_raw LIKE ?)
+                    ORDER BY 
+                        CASE 
+                            WHEN title LIKE ? THEN 1
+                            ELSE 2
+                        END,
+                        created_at DESC
                     LIMIT 20
                 ");
-                $stmt->execute([$q, $q]);
+                $searchTerm = '%' . $q . '%';
+                $stmt->execute([$searchTerm, $searchTerm, $searchTerm]);
                 $results = $stmt->fetchAll();
 
-                // Format snippets
+                error_log("Search results count: " . count($results));
+
+                // Add basic relevance score and format snippets
                 foreach ($results as &$result) {
+                    $titleMatch = stripos($result['title'], $q) !== false ? 2 : 0;
+                    $contentMatch = stripos($result['snippet'], $q) !== false ? 1 : 0;
+                    $result['relevance'] = $titleMatch + $contentMatch;
                     $result['snippet'] = htmlspecialchars($result['snippet']) . '...';
                 }
                 unset($result);
 
-            } catch (\PDOException $e) {
-                // Fallback to LIKE search if FULLTEXT not available
-                try {
-                    $stmt = $this->pdo->prepare("
-                        SELECT 
-                            id,
-                            title,
-                            slug,
-                            SUBSTRING(content_raw, 1, 200) as snippet,
-                            created_at as date
-                        FROM posts 
-                        WHERE is_published = 1 
-                        AND (title LIKE ? OR content_raw LIKE ?)
-                        ORDER BY created_at DESC
-                        LIMIT 20
-                    ");
-                    $searchTerm = '%' . $q . '%';
-                    $stmt->execute([$searchTerm, $searchTerm]);
-                    $results = $stmt->fetchAll();
-
-                    // Add basic relevance score
-                    foreach ($results as &$result) {
-                        $titleMatch = stripos($result['title'], $q) !== false ? 2 : 0;
-                        $contentMatch = stripos($result['snippet'], $q) !== false ? 1 : 0;
-                        $result['relevance'] = $titleMatch + $contentMatch;
-                        $result['snippet'] = htmlspecialchars($result['snippet']) . '...';
-                    }
-                    unset($result);
-                } catch (\Exception $e2) {
-                    error_log("Search error: " . $e2->getMessage());
-                    $error = "Помилка пошуку";
-                }
+            } catch (\Exception $e) {
+                error_log("Search error: " . $e->getMessage());
+                $error = "Помилка пошуку";
             }
         }
 
@@ -89,6 +72,9 @@ class SearchController
         $pageTitle = $q ? "Пошук: {$q} — {$blogTitle}" : "Пошук — {$blogTitle}";
 
         // Render view
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $isAdmin = isset($_SESSION['admin_id']);
         ob_start();
         include __DIR__ . '/../../templates/search_results.php';

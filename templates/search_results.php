@@ -1,60 +1,60 @@
-<h1>Пошук</h1>
+<?php
+/**
+ * Search Results Page
+ * Minimalist design - shows only essential information
+ */
 
-<form method="GET" action="/search.php">
-    <label>Запит
-        <input type="search" name="q" placeholder="Введіть запит..." value="<?= htmlspecialchars($q) ?>" autofocus
-            required>
-    </label>
-    <button type="submit">Шукати</button>
-</form>
+use App\Services\View;
 
-<?php if (isset($error)): ?>
-    <section>
-        <p style="color:red">⚠
+$blogTitle = $blogSettings['site_title'] ?? '/\\ogos';
+$searchQuery = htmlspecialchars($q ?? '');
+$pageTitle = $searchQuery ? "Пошук: {$searchQuery} — {$blogTitle}" : "Пошук — {$blogTitle}";
+
+ob_start();
+?>
+
+<div class="search-page">
+    <h1>Пошук</h1>
+
+    <form action="/search.php" method="get" style="margin-bottom: 2rem;">
+        <input type="search" name="q" value="<?= $searchQuery ?>" placeholder="Введіть запит..." required autofocus>
+        <button type="submit">Шукати</button>
+    </form>
+
+    <?php if ($error): ?>
+        <div class="alert alert-error">
+            <?= View::icon('info') ?>
             <?= htmlspecialchars($error) ?>
-        </p>
-    </section>
-<?php endif; ?>
+        </div>
+    <?php elseif (!empty($q)): ?>
+        <?php if (empty($results)): ?>
+            <p style="color: #999;">Нічого не знайдено за запитом "<strong><?= $searchQuery ?></strong>"</p>
+        <?php else: ?>
+            <p style="color: #999; margin-bottom: 1.5rem;">
+                Знайдено: <strong><?= count($results) ?></strong>
+            </p>
 
-<?php if (!empty($q)): ?>
-    <?php if (!empty($results)): ?>
-        <p>Знайдено: <strong>
-                <?= count($results) ?>
-            </strong></p>
-        <hr>
-
-        <?php foreach ($results as $result): ?>
-            <article>
-                <header>
-                    <h2>
+            <?php foreach ($results as $result): ?>
+                <article style="margin-bottom: 2rem;">
+                    <h2 style="margin-bottom: 0.5rem;">
                         <a href="/<?= htmlspecialchars($result['slug']) ?>">
                             <?= htmlspecialchars($result['title']) ?>
                         </a>
                     </h2>
-                </header>
 
-                <div>
-                    <?= $result['snippet'] ?>
-                </div>
+                    <?php if (!empty($result['snippet'])): ?>
+                        <p style="color: #666; margin: 0.5rem 0;">
+                            <?= $result['snippet'] ?>
+                        </p>
+                    <?php endif; ?>
 
-                <footer>
-                    <small>
+                    <small style="color: #999;">
                         <?= date('d.m.Y', strtotime($result['date'])) ?>
-                        • Релевантність:
-                        <?= round($result['relevance'], 2) ?>
                     </small>
-                </footer>
-            </article>
-            <hr>
-        <?php endforeach; ?>
-
+                </article>
+            <?php endforeach; ?>
+        <?php endif; ?>
     <?php else: ?>
-        <section>
-            <h2>Нічого не знайдено</h2>
-            <p>За запитом «
-                <?= htmlspecialchars($q) ?>» результатів немає.
-            </p>
-            <p><a href="/">← Повернутися на головну</a></p>
-        </section>
+        <p style="color: #999;">Введіть запит для пошуку</p>
     <?php endif; ?>
-<?php endif; ?>
+</div>

@@ -12,15 +12,16 @@ class SettingsController
 
     public function __construct()
     {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         Auth::require();
         $this->pdo = Database::connect();
     }
 
     public function index()
     {
-        // For now, use legacy settings page directly
-        // TODO: Extract view into separate template
-        require __DIR__ . '/../../../src/admin/settings.php.legacy';
+        require __DIR__ . '/../../../templates/admin_settings.php';
     }
 
     public function update()
@@ -86,6 +87,8 @@ class SettingsController
 
     private function saveSettings()
     {
+        error_log("saveSettings called - POST data: " . print_r($_POST, true));
+
         try {
             $blogTitle = trim($_POST['blog_title'] ?? '');
             $blogAuthor = trim($_POST['blog_author'] ?? '');
@@ -95,6 +98,8 @@ class SettingsController
             $postsPerPage = (int) ($_POST['posts_per_page'] ?? 5);
             $googleAnalyticsId = trim($_POST['google_analytics_id'] ?? '');
 
+            error_log("Blog title to save: " . $blogTitle);
+
             if (empty($blogTitle)) {
                 $_SESSION['settings_error'] = 'Назва блогу не може бути порожньою';
             } else {
@@ -102,6 +107,8 @@ class SettingsController
                 $stmt = $this->pdo->prepare("INSERT INTO settings (`key`, `value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = ?");
 
                 $stmt->execute(['site_title', $blogTitle, $blogTitle]);
+                error_log("site_title updated to: " . $blogTitle);
+
                 $stmt->execute(['blog_author', $blogAuthor, $blogAuthor]);
                 $stmt->execute(['blog_tagline', $blogTagline, $blogTagline]);
                 $stmt->execute(['author_avatar', $authorAvatar, $authorAvatar]);
@@ -110,6 +117,7 @@ class SettingsController
                 $stmt->execute(['google_analytics_id', $googleAnalyticsId, $googleAnalyticsId]);
 
                 $_SESSION['settings_success'] = 'Налаштування збережено';
+                error_log("Settings saved successfully");
             }
         } catch (\PDOException $e) {
             error_log("Settings update error: " . $e->getMessage());

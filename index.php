@@ -26,6 +26,12 @@ use App\Controllers\Api\CommentController;
 // 3. Initialize Router
 $router = new Router();
 
+// 404 Handler
+$router->set404(function () {
+    header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+    require __DIR__ . '/templates/404.php';
+});
+
 // 4. Define Routes
 // Home
 $router->get('/', function () {
@@ -101,6 +107,12 @@ $router->mount('/admin', function () use ($router) {
         $controller->update();
     });
 
+    // New Post Page
+    $router->get('/new-post', function () {
+        $controller = new \App\Controllers\Admin\PostController();
+        $controller->newPost();
+    });
+
     // Post Management
     $router->post('/save_post', function () {
         $controller = new \App\Controllers\Admin\PostController();
@@ -121,6 +133,11 @@ $router->mount('/admin', function () use ($router) {
     $router->get('/clear_logs', function () {
         $controller = new \App\Controllers\Admin\LogsController();
         $controller->clear();
+    });
+
+    $router->post('/reinstall', function () {
+        $controller = new \App\Controllers\Admin\ReinstallController();
+        $controller->execute();
     });
 
     $router->post('/upload_image', function () {

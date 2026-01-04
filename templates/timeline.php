@@ -1,8 +1,6 @@
 <?php
 use App\Services\Render;
-use App\Services\Csrf;
 // $posts passed from Controller
-
 
 if (empty($posts)): ?>
     <section>
@@ -10,73 +8,76 @@ if (empty($posts)): ?>
     </section>
 <?php else: ?>
 
-    <!-- Навігація вгорі (новіші пости) -->
-    <?php if (isset($page) && $page > 1): ?>
-        <nav>
-            <a href="/?page=<?= $page - 1 ?>">
-                ↑ Читати вище
-            </a>
-        </nav>
-    <?php endif; ?>
-
-    <!-- Форма створення нового посту -->
     <?php if ($isAdmin): ?>
-        <details>
-            <summary role="button">Новий пост</summary>
+        <style>
+            .admin-floating-actions {
+                position: absolute;
+                top: 0;
+                right: 0;
+                height: 100%;
+                pointer-events: none;
+            }
 
-            <form method="POST" action="/admin/save_post">
-                <?= Csrf::field() ?>
-                <input type="hidden" name="redirect_url" value="/">
+            .btn-edit-sticky {
+                position: sticky;
+                top: 100px;
+                float: right;
+                margin-right: -50px;
+                width: 32px;
+                height: 32px;
+                background: transparent;
+                color: #2e7d32;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                pointer-events: auto;
+                transition: transform 0.2s, color 0.2s;
+                border: none;
+                padding: 0;
+            }
 
-                <label>Заголовок
-                    <input type="text" name="title" id="new_title" required>
-                </label>
+            .btn-edit-sticky:hover {
+                background: transparent;
+                transform: scale(1.1);
+                color: #1b5e20;
+            }
 
-                <label>URL (slug)
-                    <input type="text" name="slug" id="new_slug" required pattern="[a-z0-9\-]+">
-                    <small>Тільки латиниця, цифри та дефіси</small>
-                </label>
-
-                <label>Контент (Neasden)
-                    <textarea id="newPostContent" name="content" required rows="10"></textarea>
-                </label>
-
-                <p>
-                    <small><strong>Синтаксис:</strong> # Заголовок • **жирний** • //курсив// • - список</small>
-                </p>
-
-                <!-- Simple image upload hint (drag & drop logic script is in footer) -->
-                <p id="newPostDropzone">
-                    Перетягніть картинки сюди
-                </p>
-
-                <button type="submit">Створити</button>
-            </form>
-        </details>
-
-        <script>
-            // Автогенерація slug з заголовка
-            document.getElementById('new_title')?.addEventListener('input', function (e) {
-                const slugInput = document.getElementById('new_slug');
-                if (!slugInput.dataset.manual) {
-                    slugInput.value = e.target.value
-                        .toLowerCase()
-                        .replace(/[^a-z0-9\s\-]/g, '')
-                        .replace(/\s+/g, '-')
-                        .replace(/-+/g, '-')
-                        .trim();
+            @media (max-width: 800px) {
+                .admin-floating-actions {
+                    position: absolute;
+                    /* Keep relative to post on mobile timeline to avoid overlap chaos */
+                    top: auto;
+                    bottom: 1rem;
+                    right: 0;
+                    height: auto;
+                    width: 100%;
                 }
-            });
 
-            document.getElementById('new_slug')?.addEventListener('input', function () {
-                this.dataset.manual = 'true';
-            });
-        </script>
-        <hr>
+                .btn-edit-sticky {
+                    position: absolute;
+                    bottom: 0;
+                    right: 0;
+                    float: none;
+                    margin-right: 0;
+                }
+            }
+        </style>
     <?php endif; ?>
 
     <?php foreach ($posts as $post): ?>
-        <article>
+        <article style="margin-bottom: 4rem; position: relative;">
+            <?php if ($isAdmin): ?>
+                <div class="admin-floating-actions">
+                    <a href="/<?= htmlspecialchars($post['slug']) ?>#edit" class="btn-edit-sticky" title="Редагувати">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </a>
+                </div>
+            <?php endif; ?>
+
             <header>
                 <h2>
                     <a href="/<?= htmlspecialchars($post['slug']) ?>">
@@ -85,26 +86,34 @@ if (empty($posts)): ?>
                 </h2>
             </header>
 
-            <div>
+            <div style="margin: 1.5rem 0;">
                 <?= Render::html($post['content']) ?>
             </div>
 
             <footer>
-                <p>
-                    <span title="<?= date('d.m.Y H:i', strtotime($post['created_at'])) ?>">
-                        <?= date('d.m.Y', strtotime($post['created_at'])) ?>
-                    </span>
-
-                    <?php if ($isAdmin): ?>
-                        | <a href="/<?= htmlspecialchars($post['slug']) ?>#edit">Редагувати</a>
-                    <?php endif; ?>
+                <p style="color: #999; font-size: 0.9rem; margin: 0;">
+                    <?= date('d.m.Y', strtotime($post['created_at'])) ?>
 
                     <?php
-                    // Завантажуємо теги
-                    $tags = [];
+                    // Get comment count
+                    try {
+                        $stmt = $pdo->prepare("SELECT COUNT(*) FROM comments WHERE post_id = ?");
+                        $stmt->execute([$post['id']]);
+                        $commentCount = (int) $stmt->fetchColumn();
+
+                        if ($commentCount > 0) {
+                            echo ' · ' . $commentCount . ' ' . ($commentCount === 1 ? 'коментар' : 'коментарів');
+                        }
+                    } catch (\PDOException $e) {
+                        // Comments table issue
+                    }
+                    ?>
+
+                    <?php
+                    // Get tags (if table exists)
                     try {
                         $stmt = $pdo->prepare("
-                            SELECT t.*
+                            SELECT t.name
                             FROM tags t
                             JOIN post_tags pt ON t.id = pt.tag_id
                             WHERE pt.post_id = ?
@@ -112,30 +121,42 @@ if (empty($posts)): ?>
                         ");
                         $stmt->execute([$post['id']]);
                         $tags = $stmt->fetchAll();
-                    } catch (PDOException $e) {
+
+                        if (!empty($tags)) {
+                            foreach ($tags as $tag) {
+                                echo ' · <a href="/tag/' . urlencode($tag['name']) . '">#' . htmlspecialchars($tag['name']) . '</a>';
+                            }
+                        }
+                    } catch (\PDOException $e) {
+                        // Tags table doesn't exist yet
                     }
                     ?>
-
-                    <?php if (!empty($tags)): ?>
-                        <br>Теги:
-                        <?php foreach ($tags as $tag): ?>
-                            <a href="/tag/<?= urlencode($tag['name']) ?>">
-                                #<?= htmlspecialchars($tag['name']) ?>
-                            </a>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
                 </p>
             </footer>
         </article>
-        <hr>
     <?php endforeach; ?>
 
-    <!-- Навігація внизу (старіші пости) -->
-    <?php if (isset($page) && isset($totalPages) && $page < $totalPages): ?>
-        <nav>
-            <a href="/?page=<?= $page + 1 ?>">
-                Читати нижче ↓
-            </a>
+    <!-- Pagination -->
+    <?php if ($page > 1 || $page < $totalPages): ?>
+        <nav
+            style="display: flex; justify-content: space-between; align-items: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #eee;">
+
+            <?php if ($page > 1): ?>
+                <a href="/?page=<?= $page - 1 ?>" style="text-decoration: none;">
+                    ← Повернутись
+                </a>
+            <?php else: ?>
+                <div></div> <!-- Spacer for flexbox -->
+            <?php endif; ?>
+
+            <?php if ($page < $totalPages): ?>
+                <a href="/?page=<?= $page + 1 ?>" style="text-decoration: none;">
+                    Читати далі →
+                </a>
+            <?php else: ?>
+                <div></div> <!-- Spacer for flexbox -->
+            <?php endif; ?>
+
         </nav>
     <?php endif; ?>
 

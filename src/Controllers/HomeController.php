@@ -32,18 +32,29 @@ class HomeController
         $stmt->execute();
         $posts = $stmt->fetchAll();
 
+        // Prepare content field for each post
+        foreach ($posts as &$post) {
+            $post['content'] = $post['content_raw'] ?? '';
+        }
+        unset($post);
+
         // Total for pagination UI (simplified)
         $total = $pdo->query("SELECT COUNT(*) FROM posts WHERE is_published = 1")->fetchColumn();
         $totalPages = ceil($total / $postsPerPage);
 
         // Global Blog Settings for Header
-        // In a better architecture, this would be injected into the View context globally
         $blogSettings = [];
         $settingsStmt = $pdo->query("SELECT `key`, `value` FROM settings");
         while ($row = $settingsStmt->fetch()) {
             $blogSettings[$row['key']] = $row['value'];
         }
         $blogTitle = $blogSettings['site_title'] ?? 'Logos Blog';
+
+        // Check if admin
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $isAdmin = isset($_SESSION['admin_id']);
 
         // Render
         require __DIR__ . '/../../templates/header.php';

@@ -84,69 +84,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 
 <head>
     <meta charset="UTF-8">
-    <title>Install Logos CMS</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <style>
-        body {
-            max-width: 500px;
-            padding-top: 5vh;
-        }
-
-        h1 {
-            margin-bottom: 2rem;
-        }
-
-        .install-card {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-
-        .alert {
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            background: #ffebee;
-            color: #c62828;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Встановлення Logos CMS</title>
+    <link rel="stylesheet" href="/assets/css/base.css">
+    <link rel="stylesheet" href="/assets/css/theme.css">
 </head>
 
 <body>
     <header>
-        <h1>Logos Installer</h1>
-        <p>Welcome to your new minimalist blog.</p>
+        <h1>/\ogos</h1>
+        <p>Мінімалістична CMS для вашого блогу</p>
     </header>
 
     <main>
-        <?php if ($message): ?>
-            <div class="alert">
-                <?= htmlspecialchars($message) ?>
-            </div>
-        <?php endif; ?>
+        <div class="settings-container" style="max-width: 600px; margin: 0 auto;">
+            <h2>Встановлення</h2>
 
-        <form method="POST" class="install-card">
-            <h3>Database Connection</h3>
-            <label>Host <input type="text" name="db_host" value="localhost" required></label>
-            <label>Database Name <input type="text" name="db_name" required placeholder="logos_blog"></label>
-            <label>User <input type="text" name="db_user" required placeholder="root"></label>
-            <label>Password <input type="password" name="db_pass"></label>
+            <?php if ($message): ?>
+                <div class="alert alert-error" style="margin-bottom: 2rem;">
+                    <?= htmlspecialchars($message) ?>
+                </div>
+            <?php endif; ?>
 
-            <h3>Admin Account</h3>
-            <label>Email (Login) <input type="email" name="admin_email" required></label>
-            <label>Password <input type="password" name="admin_pass" required></label>
+            <form method="POST" class="settings-form">
+                <h3>База даних</h3>
 
-            <h3>Site Details</h3>
-            <label>Site Title <input type="text" name="site_title" value="My Awesome Blog"></label>
+                <div class="form-group">
+                    <label for="db_host">Хост</label>
+                    <input type="text" id="db_host" name="db_host" value="localhost" required>
+                    <small>Зазвичай localhost або 127.0.0.1</small>
+                </div>
 
-            <button type="submit" class="btn-submit" style="width: 100%; margin-top: 1rem;">Install Now</button>
-        </form>
+                <div class="form-group">
+                    <label for="db_name">Назва бази даних</label>
+                    <input type="text" id="db_name" name="db_name" required placeholder="logos_blog">
+                </div>
+
+                <div class="form-group">
+                    <label for="db_user">Користувач</label>
+                    <input type="text" id="db_user" name="db_user" required placeholder="root">
+                </div>
+
+                <div class="form-group">
+                    <label for="db_pass">Пароль</label>
+                    <input type="password" id="db_pass" name="db_pass" placeholder="Залиште порожнім, якщо немає">
+                </div>
+
+                <h3 style="margin-top: 2rem;">Адміністратор</h3>
+
+                <div class="form-group">
+                    <label for="admin_email">Email (для входу)</label>
+                    <input type="email" id="admin_email" name="admin_email" required placeholder="admin@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="admin_pass">Пароль</label>
+                    <input type="password" id="admin_pass" name="admin_pass" required minlength="3">
+                    <small>Мінімум 3 символи</small>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Налаштування сайту</h3>
+
+                <div class="form-group">
+                    <label for="site_title">Назва блогу</label>
+                    <input type="text" id="site_title" name="site_title" value="/\ogos" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">Встановити</button>
+                </div>
+            </form>
+        </div>
     </main>
+
+    <footer>
+        <p>© Logos CMS · Мінімалістична платформа для блогів</p>
+    </footer>
 </body>
 
 </html>

@@ -18,9 +18,7 @@ class PostController
         // 404 Not Found
         if (!$post) {
             http_response_code(404);
-            require __DIR__ . '/../../templates/header.php';
-            echo "<div style='text-align:center; padding: 5rem 1rem;'><h1>404</h1><p>Цей запис не знайдено.</p></div>";
-            require __DIR__ . '/../../templates/footer.php';
+            require __DIR__ . '/../../templates/404.php';
             return;
         }
 
@@ -53,6 +51,12 @@ class PostController
         // Змінні для View
         $blogTitle = $blogSettings['site_title'] ?? 'Logos Blog';
         $pageTitle = $post['title'];
+
+        // Check if admin
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $isAdmin = isset($_SESSION['admin_id']);
 
         // 7. Рендеринг
         require __DIR__ . '/../../templates/header.php';
